@@ -2,8 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --black-primary: theme("colors.black-primary");
+  --purple-primary: theme("colors.purple-primary");
+  --red-danger: theme("colors.red-danger");
+  --white-primary: theme("colors.white-primary");
+}
+
 body {
-  background: #343434;
-  color: #f6e7d2;
+  color: #202022;
+  font-family: "Poppins", Arial, Helvetica, sans-serif;
+  font-style: normal;
   @apply font-medium;
 }
