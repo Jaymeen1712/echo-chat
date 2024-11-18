@@ -1,7 +1,14 @@
 export const SIDEBAR_KEYS = {
   ALL_CHATS: {
-    key: "all-chats",
-    title: "all-chats",
+    title: "All chats",
     route: "all-chats",
+  },
+  PROFILE: {
+    title: "Profile",
+    route: "profile",
+  },
+  EDIT: {
+    title: "Edit",
+    route: "settings",
   },
 };

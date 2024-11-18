@@ -1,14 +1,14 @@
 import { Route, Routes } from "react-router-dom";
-import AllChatsPage from ".";
+import SettingsPage from ".";
 import { PageNotFound } from "../../components";
 
-const AllChatsRoutes = () => {
+const SettingsRoutes = () => {
   return (
     <Routes>
-      <Route path="/" element={<AllChatsPage />} />
+      <Route path="/" element={<SettingsPage />} />
       <Route path="/*" element={<PageNotFound />} />
     </Routes>
   );
 };
 
-export default AllChatsRoutes;
+export default SettingsRoutes;
