@@ -11,6 +11,7 @@
 
 body {
   color: #202022;
+  background: #202022;
   font-family: "Poppins", Arial, Helvetica, sans-serif;
   font-style: normal;
   @apply font-medium;
