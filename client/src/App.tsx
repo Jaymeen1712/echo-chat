@@ -10,7 +10,12 @@ function App() {
     //  fallback={<Spinner />}
     >
       <Wrapper>
-        <Router>
+        <Router
+          future={{
+            v7_relativeSplatPath: true,
+            v7_startTransition: true,
+          }}
+        >
           <RoutesWrapper />
         </Router>
       </Wrapper>
