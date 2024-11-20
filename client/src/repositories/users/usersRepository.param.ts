@@ -5,3 +5,7 @@ export interface createUserParam {
   password: string;
   image?: string;
 }
+export interface postLoginParam {
+  email: string;
+  password: string;
+}

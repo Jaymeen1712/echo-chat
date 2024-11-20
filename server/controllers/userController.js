@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
 const User = require("../models/user");
 const { handleGetResponse } = require("../utils/utils");
+const jwt = require("jsonwebtoken");
 
 const createUser = async (req, res) => {
   try {
@@ -13,14 +14,11 @@ const createUser = async (req, res) => {
         .json({ error: "Email, name, and password are required." });
     }
 
-    const saltRounds = 10;
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
-
     const newUser = new User({
       email,
       isActive,
       name,
-      password: hashedPassword,
+      password,
       image,
     });
 
@@ -29,7 +27,6 @@ const createUser = async (req, res) => {
     res.status(201).json(
       handleGetResponse({
         message: "User created successfully",
-        data: newUser,
       })
     );
   } catch (error) {
@@ -74,6 +71,83 @@ const createUser = async (req, res) => {
   }
 };
 
+const loginUser = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // Check if both email and password are provided
+    if (!email || !password) {
+      return res.status(400).json(
+        handleGetResponse({
+          message: "Email and password are required.",
+          isError: true,
+        })
+      );
+    }
+
+    // Find the user by email
+    const user = await User.findOne({ email });
+
+    // Check if user exists
+    if (!user) {
+      return res.status(401).json(
+        handleGetResponse({
+          message: "Invalid email or password.",
+          isError: true,
+        })
+      );
+    }
+
+    // Compare provided password with hashed password in the database
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      return res.status(401).json(
+        handleGetResponse({
+          message: "Invalid password.",
+          isError: true,
+        })
+      );
+    }
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { userId: user._id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: "6h" }
+    );
+
+    // Send response with the token
+    res.status(200).json(
+      handleGetResponse({
+        message: "Login successful.",
+        data: { token },
+      })
+    );
+  } catch (error) {
+    console.error("Error logging in user:", error);
+
+    // 1. ValidationError for any validation failures
+    if (error.name === "ValidationError") {
+      return res.status(400).json(
+        handleGetResponse({
+          message: "Validation error. Check input data.",
+          isError: true,
+        })
+      );
+    }
+
+    // 2. Generic server errors
+    return res.status(500).json(
+      handleGetResponse({
+        message: "Could not log in user due to a server error.",
+        isError: true,
+      })
+    );
+  }
+};
+
 module.exports = {
   createUser,
+  loginUser,
 };

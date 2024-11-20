@@ -2,7 +2,7 @@ import Button from "@/components/custom-button";
 import { AxiosCustomErrorType } from "@/types";
 import { AuthContainer, FormItem } from "../../../components";
 import { FormError, FormInput, FormItemError } from "../../../components/form";
-import SignUpController from "./sign-up-controller";
+import useSignUpController from "./sign-up-controller";
 
 function SignUpPage() {
   const {
@@ -12,7 +12,7 @@ function SignUpPage() {
     handleRedirectToLoginPage,
     errors,
     createUserMutation,
-  } = SignUpController();
+  } = useSignUpController();
 
   return (
     <div className="relative grid h-screen grid-cols-2 p-4">
@@ -87,7 +87,7 @@ function SignUpPage() {
             className="mt-4 w-full rounded-xl bg-purple-dark-1 px-4 py-3 text-white-primary transition-all hover:bg-opacity-95"
             isLoading={createUserMutation.isLoading}
           >
-            Submit
+            Sign up
           </Button>
         </form>
       </AuthContainer>

@@ -15,5 +15,5 @@ export interface AxiosCustomResponseType extends AxiosResponse {
 
 interface AxiosCustomResponseDataType {
   message: string;
-  data: any;
+  data?: any;
 }

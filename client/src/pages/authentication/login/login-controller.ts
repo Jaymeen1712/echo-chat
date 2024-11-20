@@ -1,20 +1,10 @@
-import { useCreateUserMutation } from "@/queries/user.query";
+import { usePostLoginMutation } from "@/queries/user.query";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import * as yup from "yup";
 
 const schema = yup.object().shape({
-  firstName: yup
-    .string()
-    .required("First name is required")
-    .min(3, "First name must be at least 3 characters long"),
-
-  lastName: yup
-    .string()
-    .required("Last name is required")
-    .min(3, "Last name must be at least 3 characters long"),
-
   email: yup
     .string()
     .required("Email is required")
@@ -27,17 +17,14 @@ const schema = yup.object().shape({
 });
 
 interface IFormInput {
-  firstName: string;
-  lastName: string;
   email: string;
   password: string;
 }
 
-const useSignUpController = () => {
+const useLoginController = () => {
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors },
   } = useForm<IFormInput>({
     resolver: yupResolver(schema),
@@ -45,35 +32,33 @@ const useSignUpController = () => {
 
   const navigate = useNavigate();
 
-  const createUserMutation = useCreateUserMutation();
+  const postLoginMutation = usePostLoginMutation();
 
   const onSubmit: SubmitHandler<IFormInput> = (data) => {
-    const { email, firstName, lastName, password } = data;
+    const { email, password } = data;
 
-    const name = `${firstName} ${lastName}`;
-
-    createUserMutation.mutate(
-      { email, isActive: true, name, password },
+    postLoginMutation.mutate(
+      { email, password },
       {
         onSuccess: () => {
-          navigate("/login");
+          navigate("/all-chats");
         },
       },
     );
   };
 
-  const handleRedirectToLoginPage = async () => {
-    navigate("/login");
+  const handleRedirectToSignUpPage = async () => {
+    navigate("/sign-up");
   };
 
   return {
     register,
     handleSubmit,
     onSubmit,
-    handleRedirectToLoginPage,
+    handleRedirectToSignUpPage,
     errors,
-    createUserMutation,
+    postLoginMutation,
   };
 };
 
-export default useSignUpController;
+export default useLoginController;

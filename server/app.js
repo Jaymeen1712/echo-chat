@@ -1,6 +1,6 @@
+require("dotenv").config({ path: __dirname + "/.env" });
 const express = require("express");
 const mongoose = require("mongoose");
-const userRoutes = require("./routes/routes");
 
 const app = express();
 const port = process.env.PORT || 4000;
@@ -8,13 +8,10 @@ const port = process.env.PORT || 4000;
 const Cors = require("cors");
 const router = require("./routes/routes");
 
-mongoose.connect(
-  "mongodb+srv://jaymeensonara:5ed9Doa5idL3hDxY@personal-use-cluster.icpal.mongodb.net/chat-app-db",
-  {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  }
-);
+mongoose.connect(process.env.DATABASE_URL, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
 
 const db = mongoose.connection;
 
