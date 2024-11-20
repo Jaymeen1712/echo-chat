@@ -147,7 +147,38 @@ const loginUser = async (req, res) => {
   }
 };
 
+const getUser = async (req, res) => {
+  try {
+    const user = req.user;
+
+    if (!user) {
+      return res.status(404).json(
+        handleGetResponse({
+          message: "User not found.",
+          isError: true,
+        })
+      );
+    }
+
+    return res.status(200).json(
+      handleGetResponse({
+        message: "User data retrieved successfully.",
+        data: { user },
+      })
+    );
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json(
+      handleGetResponse({
+        message: "Could not log in user due to a server error.",
+        isError: true,
+      })
+    );
+  }
+};
+
 module.exports = {
   createUser,
   loginUser,
+  getUser,
 };
