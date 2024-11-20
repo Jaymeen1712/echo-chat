@@ -1,9 +1,12 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const userRoutes = require("./routes/userRoutes");
+const userRoutes = require("./routes/routes");
 
 const app = express();
 const port = process.env.PORT || 4000;
+
+const Cors = require("cors");
+const router = require("./routes/routes");
 
 mongoose.connect(
   "mongodb+srv://jaymeensonara:5ed9Doa5idL3hDxY@personal-use-cluster.icpal.mongodb.net/chat-app-db",
@@ -24,10 +27,10 @@ db.once("open", () => {
 });
 
 app.use(express.json());
+app.use(Cors());
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
 
-// Mount the user routes
-app.use("/users", userRoutes);
+app.use("/chat-service", router);

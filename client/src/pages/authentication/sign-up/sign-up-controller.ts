@@ -1,3 +1,4 @@
+import { useCreateUserMutation } from "@/queries/user.query";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
@@ -44,7 +45,22 @@ const SignUpController = () => {
 
   const navigate = useNavigate();
 
-  const onSubmit: SubmitHandler<IFormInput> = (data) => console.log(data);
+  const createUserMutation = useCreateUserMutation();
+
+  const onSubmit: SubmitHandler<IFormInput> = (data) => {
+    const { email, firstName, lastName, password } = data;
+
+    const name = `${firstName} ${lastName}`;
+
+    createUserMutation.mutate(
+      { email, isActive: true, name, password },
+      {
+        onSuccess: () => {
+          navigate("/login");
+        },
+      },
+    );
+  };
 
   const handleRedirectToLoginPage = async () => {
     navigate("/login");
@@ -56,6 +72,7 @@ const SignUpController = () => {
     onSubmit,
     handleRedirectToLoginPage,
     errors,
+    createUserMutation,
   };
 };
 

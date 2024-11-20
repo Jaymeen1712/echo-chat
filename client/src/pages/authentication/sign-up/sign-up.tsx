@@ -1,5 +1,7 @@
+import Button from "@/components/custom-button";
+import { AxiosCustomErrorType } from "@/types";
 import { AuthContainer, FormItem } from "../../../components";
-import { FormError, FormInput } from "../../../components/form";
+import { FormError, FormInput, FormItemError } from "../../../components/form";
 import SignUpController from "./sign-up-controller";
 
 function SignUpPage() {
@@ -9,6 +11,7 @@ function SignUpPage() {
     onSubmit,
     handleRedirectToLoginPage,
     errors,
+    createUserMutation,
   } = SignUpController();
 
   return (
@@ -39,7 +42,7 @@ function SignUpPage() {
               placeholder="Enter first name"
               isValidationError={!!errors?.firstName?.message}
             />
-            <FormError message={errors?.firstName?.message} />
+            <FormItemError message={errors?.firstName?.message} />
           </FormItem>
           <FormItem label={"Last Name"}>
             <FormInput
@@ -47,7 +50,7 @@ function SignUpPage() {
               placeholder="Enter last name"
               isValidationError={!!errors?.lastName?.message}
             />
-            <FormError message={errors?.lastName?.message} />
+            <FormItemError message={errors?.lastName?.message} />
           </FormItem>
           <FormItem label={"Email"}>
             <FormInput
@@ -58,7 +61,7 @@ function SignUpPage() {
               placeholder="Enter email"
               isValidationError={!!errors?.email?.message}
             />
-            <FormError message={errors?.email?.message} />
+            <FormItemError message={errors?.email?.message} />
           </FormItem>
           <FormItem label={"Password"}>
             <FormInput
@@ -67,15 +70,25 @@ function SignUpPage() {
               placeholder="Enter password"
               isValidationError={!!errors?.password?.message}
             />
-            <FormError message={errors?.password?.message} />
+            <FormItemError message={errors?.password?.message} />
           </FormItem>
 
-          <button
+          {createUserMutation.isError && (
+            <FormError
+              message={
+                (createUserMutation.error as AxiosCustomErrorType).response
+                  ?.data.message
+              }
+            />
+          )}
+
+          <Button
             type="submit"
             className="mt-4 w-full rounded-xl bg-purple-dark-1 px-4 py-3 text-white-primary transition-all hover:bg-opacity-95"
+            isLoading={createUserMutation.isLoading}
           >
             Submit
-          </button>
+          </Button>
         </form>
       </AuthContainer>
 
