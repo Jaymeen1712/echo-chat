@@ -12,3 +12,7 @@ export const SIDEBAR_KEYS = {
     route: "settings",
   },
 };
+
+export const USER_ACCESS_KEY = {
+  TOKEN: "accessToken",
+};

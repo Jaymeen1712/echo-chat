@@ -1,5 +1,8 @@
+import { USER_ACCESS_KEY } from "@/enums";
 import { usePostLoginMutation } from "@/queries/user.query";
+import { AxiosCustomResponseType } from "@/types";
 import { yupResolver } from "@hookform/resolvers/yup";
+import Cookies from "js-cookie";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import * as yup from "yup";
@@ -40,7 +43,14 @@ const useLoginController = () => {
     postLoginMutation.mutate(
       { email, password },
       {
-        onSuccess: () => {
+        onSuccess: (data: AxiosCustomResponseType) => {
+          const { token } = data.data.data;
+
+          if (!token) {
+            return;
+          }
+
+          Cookies.set(USER_ACCESS_KEY.TOKEN, token);
           navigate("/all-chats");
         },
       },

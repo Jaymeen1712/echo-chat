@@ -4,7 +4,7 @@ import { createUserParam, postLoginParam } from "./usersRepository.param";
 export const createUser = async (data: createUserParam) => {
   return await apiClient({
     method: "post",
-    url: "/user",
+    url: "/register",
     data,
   });
 };
@@ -12,7 +12,7 @@ export const createUser = async (data: createUserParam) => {
 export const postLogin = async ({ email, password }: postLoginParam) => {
   return await apiClient({
     method: "post",
-    url: `/user/login`,
+    url: `/login`,
     data: {
       email,
       password,

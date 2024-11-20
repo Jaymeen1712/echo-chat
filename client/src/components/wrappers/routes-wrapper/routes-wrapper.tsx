@@ -38,8 +38,22 @@ const RoutesWrapper = () => {
   return (
     <Routes>
       {/* Authentication Routes */}
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/sign-up" element={<SignUpPage />} />
+      <Route
+        path="/login"
+        element={
+          <PublicLayout>
+            <LoginPage />
+          </PublicLayout>
+        }
+      />
+      <Route
+        path="/sign-up"
+        element={
+          <PublicLayout>
+            <SignUpPage />
+          </PublicLayout>
+        }
+      />
 
       {/* Protected Routes */}
       <Route
