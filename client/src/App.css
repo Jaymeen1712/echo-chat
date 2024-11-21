@@ -14,3 +14,27 @@
   height: 100%;
   object-fit: cover;
 }
+/* 
+.chat-container::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 20px;
+  height: 20px;
+  background-color: #9b59b6;
+  border-top-left-radius: 50%;
+  border-bottom-right-radius: 16px;
+} */
+
+/* .chat-container {
+  position: relative;
+  background-color: #9b59b6;
+  color: white;
+  padding: 16px;
+  border-radius: 16px;
+  max-width: 300px;
+  word-wrap: break-word;
+  margin: 16px 0;
+  clip-path: polygon(0 0, 100% 0, 100% 85%, 95% 100%, 90% 85%, 0 85%);
+} */
