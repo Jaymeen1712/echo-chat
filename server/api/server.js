@@ -6,7 +6,7 @@ const app = express();
 const port = process.env.PORT || 4000;
 
 const Cors = require("cors");
-const router = require("./routes/routes");
+const router = require("../routes/routes");
 
 mongoose.connect(process.env.DATABASE_URL, {
   useNewUrlParser: true,
@@ -24,7 +24,7 @@ db.once("open", () => {
 });
 
 app.use(express.json());
-app.use(Cors());
+app.use(Cors({ origin: "https://chat-app-js-server.vercel.app" }));
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
