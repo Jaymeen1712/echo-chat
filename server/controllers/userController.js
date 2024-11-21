@@ -2,6 +2,7 @@ const bcrypt = require("bcrypt");
 const User = require("../models/user");
 const { handleGetResponse } = require("../utils/utils");
 const jwt = require("jsonwebtoken");
+const { sendErrors } = require("../utils/getError");
 
 const createUser = async (req, res) => {
   try {
@@ -11,7 +12,7 @@ const createUser = async (req, res) => {
     if (!email || !password || !name) {
       return res
         .status(400)
-        .json({ error: "Email, name, and password are required." });
+        .json({ error: "Email, name and password are required." });
     }
 
     const newUser = new User({
@@ -30,44 +31,12 @@ const createUser = async (req, res) => {
       })
     );
   } catch (error) {
-    console.error("Error creating user:", error);
-    if (error.name === "ValidationError") {
-      return res.status(400).json(
-        handleGetResponse({
-          message: "Validation error. Check input data.",
-          isError: true,
-        })
-      );
-    }
-
-    // 2. MongoError (e.g., duplicate email error)
-    if (error.code === 11000) {
-      // 11000 is a MongoDB error code for duplicate key
-      return res.status(409).json(
-        handleGetResponse({
-          message: "User with this email already exists.",
-          isError: true,
-        })
-      );
-    }
-
-    // 3. Custom business logic errors
-    if (error instanceof CustomError) {
-      return res.status(error.statusCode).json(
-        handleGetResponse({
-          message: error.message,
-          isError: true,
-        })
-      );
-    }
-
-    // 4. Generic server errors
-    return res.status(500).json(
-      handleGetResponse({
-        message: "Could not create user due to a server error.",
-        isError: true,
-      })
-    );
+    sendErrors({
+      res,
+      error,
+      duplicationMessage: "User with this email already exists.",
+      genericMessageKey: "create user",
+    });
   }
 };
 
@@ -177,8 +146,55 @@ const getUser = async (req, res) => {
   }
 };
 
+const searchUsers_get = async (req, res) => {
+  try {
+    const { query } = req.body;
+
+    if (!query) {
+      return res.status(404).json(
+        handleGetResponse({
+          message: "Search query not found.",
+          isError: true,
+        })
+      );
+    }
+
+    const users = await User.find({
+      $or: [
+        { name: { $regex: query, $options: "i" } },
+        // { email: { $regex: query, $options: "i" } },
+      ],
+    }).select(["name", "image"]);
+
+    if (users.length === 0) {
+      return res.status(404).json(
+        handleGetResponse({
+          message: "No users found matching the query.",
+          data: { users: [] },
+        })
+      );
+    }
+
+    return res.status(200).json(
+      handleGetResponse({
+        message: "User data fetched successfully.",
+        data: { users },
+      })
+    );
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json(
+      handleGetResponse({
+        message: "Could not find users due to a server error.",
+        isError: true,
+      })
+    );
+  }
+};
+
 module.exports = {
   createUser,
   loginUser,
   getUser,
+  searchUsers_get,
 };
