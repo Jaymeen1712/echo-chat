@@ -8,23 +8,23 @@ const MessageItem: React.FC<MessageItemProps> = ({ type }) => {
       className={`flex ${type === "sender" ? "justify-start" : "justify-end"}`}
     >
       <div
-        className={`flex w-[70%] items-end gap-x-4 ${type !== "sender" && "flex-row-reverse"}`}
+        className={`flex w-[70%] items-end gap-x-4 ${type !== "sender" && "!flex-row-reverse"}`}
       >
         <div className="avatar">
           <img src="/user-avatar-1.png" alt="Avatar" />
         </div>
 
         <div
-          className={`flex cursor-pointer flex-col gap-y-3 rounded-2xl bg-purple-primary/10 px-5 py-3 text-sm ${type !== "sender" && "bg-purple-primary"}`}
+          className={`flex cursor-pointer flex-col gap-y-3 rounded-2xl bg-purple-primary/10 px-5 py-3 text-sm ${type !== "sender" && "!bg-purple-primary"}`}
         >
           {type === "sender" && (
-            <h4 className={`text-purple-dark-1 font-semibold`}>
+            <h4 className={`font-semibold text-purple-dark-1`}>
               Jasmin Lowery
             </h4>
           )}
 
           <span
-            className={`font-medium ${type !== "sender" && "text-white-primary"}`}
+            className={`font-medium ${type !== "sender" && "!text-white-primary"}`}
           >
             I added a new flows to our design system. Now you can use them for
             your projects! I added a new flows to our design system. Now you can
@@ -34,7 +34,7 @@ const MessageItem: React.FC<MessageItemProps> = ({ type }) => {
           </span>
 
           <div
-            className={`flex items-center gap-x-2 ${type !== "sender" && "text-white-primary"}`}
+            className={`flex items-center gap-x-2 ${type !== "sender" && "!text-white-primary"}`}
           >
             <div className="h-4 w-4 flex-1 rounded-full"></div>
 

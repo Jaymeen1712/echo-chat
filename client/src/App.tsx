@@ -1,5 +1,4 @@
 import { Suspense } from "react";
-import { BrowserRouter as Router } from "react-router-dom";
 import "./App.css";
 import { RoutesWrapper } from "./components";
 import Wrapper from "./wrapper";
@@ -10,9 +9,7 @@ function App() {
     //  fallback={<Spinner />}
     >
       <Wrapper>
-        <Router>
-          <RoutesWrapper />
-        </Router>
+        <RoutesWrapper />
       </Wrapper>
     </Suspense>
   );

@@ -20,6 +20,9 @@ export default {
         "purple-primary": "#7678ed",
         "purple-dark-1": "#232C6A",
       },
+      fontFamily: {
+        tinos: ['"Tinos"', "serif"],
+      },
     },
   },
   plugins: [],
