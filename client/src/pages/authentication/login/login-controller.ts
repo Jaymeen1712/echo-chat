@@ -1,5 +1,5 @@
 import { USER_ACCESS_KEY } from "@/enums";
-import { usePostLoginMutation } from "@/queries/user.query";
+import { usePostLoginMutation } from "@/queries/user.queries";
 import { AxiosCustomResponseType } from "@/types";
 import { yupResolver } from "@hookform/resolvers/yup";
 import Cookies from "js-cookie";

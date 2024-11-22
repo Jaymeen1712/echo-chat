@@ -1,4 +1,4 @@
-require("dotenv").config({ path: __dirname + "/.env" });
+require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 
@@ -24,7 +24,7 @@ db.once("open", () => {
 });
 
 app.use(express.json());
-app.use(Cors({ origin: "https://chat-app-js-server.vercel.app" }));
+app.use(Cors());
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);

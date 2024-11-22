@@ -148,16 +148,7 @@ const getUser = async (req, res) => {
 
 const searchUsers_get = async (req, res) => {
   try {
-    const { query } = req.body;
-
-    if (!query) {
-      return res.status(404).json(
-        handleGetResponse({
-          message: "Search query not found.",
-          isError: true,
-        })
-      );
-    }
+    const { query = "" } = req.body;
 
     const users = await User.find({
       $or: [
@@ -167,7 +158,7 @@ const searchUsers_get = async (req, res) => {
     }).select(["name", "image"]);
 
     if (users.length === 0) {
-      return res.status(404).json(
+      return res.status(200).json(
         handleGetResponse({
           message: "No users found matching the query.",
           data: { users: [] },

@@ -18,7 +18,7 @@ router.post("/login", loginUser);
 
 // User routes
 router.get("/me", authenticateToken, getUser);
-router.get("/searchUsers", authenticateToken, searchUsers_get);
+router.post("/searchUsers", authenticateToken, searchUsers_get);
 
 // Conversation routes
 router.post(
@@ -31,20 +31,28 @@ router.get(
   authenticateToken,
   conversation_controller.conversation_get
 );
-router.put(
+router.patch(
   "/conversation",
   authenticateToken,
-  conversation_controller.conversation_put
+  conversation_controller.conversation_patch
 );
 router.delete(
-  "/conversation",
+  "/conversation/:conversationId",
   authenticateToken,
   conversation_controller.conversation_delete
 );
 
 // Message routes
 router.post("/message", authenticateToken, message_controller.message_post);
-router.get("/messages", authenticateToken, message_controller.message_get);
-router.delete("/message", authenticateToken, message_controller.message_delete);
+router.get(
+  "/messages/:conversationId",
+  authenticateToken,
+  message_controller.message_get
+);
+router.delete(
+  "/message/:messageId",
+  authenticateToken,
+  message_controller.message_delete
+);
 
 module.exports = router;

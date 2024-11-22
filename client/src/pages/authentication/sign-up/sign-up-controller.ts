@@ -1,4 +1,4 @@
-import { useCreateUserMutation } from "@/queries/user.query";
+import { useCreateUserMutation } from "@/queries/user.queries";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";

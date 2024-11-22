@@ -92,8 +92,12 @@ function SignUpPage() {
         </form>
       </AuthContainer>
 
-      <div className="absolute">
-        <img src="/wallhaven-ym1gpx.jpg" alt="Avatar" />
+      <div className="fixed">
+        <img
+          src="/wallhaven-ym1gpx.jpg"
+          alt="Avatar"
+          className="-translate-y-12 transform object-cover"
+        />
       </div>
     </div>
   );

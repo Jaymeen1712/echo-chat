@@ -1,18 +1,28 @@
-export const SIDEBAR_KEYS = {
+import { SubSidebarKeysType } from "@/types";
+
+export const SIDEBAR_KEYS: Record<
+  string,
+  {
+    title: string;
+    key: SubSidebarKeysType;
+  }
+> = {
   ALL_CHATS: {
-    title: "All chats",
-    route: "all-chats",
+    title: "Chats",
+    key: "chats",
   },
   PROFILE: {
     title: "Profile",
-    route: "profile",
+    key: "profile",
   },
   EDIT: {
     title: "Edit",
-    route: "settings",
+    key: "settings",
   },
 };
 
 export const USER_ACCESS_KEY = {
   TOKEN: "accessToken",
 };
+
+export const DEFAULT_SUB_SIDEBAR_WIDTH = 440;

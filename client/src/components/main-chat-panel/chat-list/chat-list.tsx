@@ -1,10 +1,23 @@
+import { ChatType } from "@/components/sub-sidebar/chats/chats-controller";
+import { useAppStore } from "@/store";
 import ChatItem from "./chat-item";
 
-const ChatList = () => {
+interface ChatListProps {
+  handleChatClick: (data: ChatType) => void;
+}
+
+const ChatList: React.FC<ChatListProps> = ({ handleChatClick }) => {
+  const { subSidebarChats } = useAppStore();
+  console.log("🚀 ~ subSidebarChats:", subSidebarChats)
+
   return (
-    <div className="flex flex-1 flex-col overflow-y-auto">
-      {[...Array(10)].map((_, index) => (
-        <ChatItem key={index} />
+    <div className="flex-1 overflow-y-auto">
+      {subSidebarChats.map((chat, index) => (
+        <ChatItem
+          key={chat.conversationId || index}
+          chat={chat}
+          handleChatClick={handleChatClick}
+        />
       ))}
     </div>
   );

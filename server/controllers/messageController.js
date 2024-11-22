@@ -42,7 +42,7 @@ module.exports.message_post = async (req, res) => {
 
 module.exports.message_get = async (req, res) => {
   try {
-    const { conversationId } = req.body;
+    const { conversationId } = req.params;
 
     const conversation = new ObjectId(conversationId);
 
@@ -53,7 +53,7 @@ module.exports.message_get = async (req, res) => {
       .sort({ updatedAt: -1 });
 
     if (!messages || messages.length === 0) {
-      return res.status(404).json(
+      return res.status(202).json(
         handleGetResponse({
           message: `No messages found for this user.`,
           data: {
@@ -66,7 +66,7 @@ module.exports.message_get = async (req, res) => {
     return res.status(200).json(
       handleGetResponse({
         message: `Messages fetched successfully.`,
-        data: messages,
+        data: { messages },
       })
     );
   } catch (error) {
@@ -80,7 +80,7 @@ module.exports.message_get = async (req, res) => {
 
 module.exports.message_delete = async (req, res) => {
   try {
-    const { messageId } = req.body;
+    const { messageId } = req.params;
 
     if (!messageId) {
       return res.status(400).json(
