@@ -3,7 +3,7 @@ import { useAppStore } from "@/store";
 import { GetAllMessagesType, SingleMessageType } from "@/types";
 import { handleGroupMessagesByDate } from "@/utils";
 import { socketClient } from "@/wrapper";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export interface SingleMessageWithTypeType extends SingleMessageType {
   type: "sender" | "receiver";
@@ -26,6 +26,38 @@ const useMessageListController = () => {
   } = useGetAllMessagesQuery({
     conversationId: activeChat?.conversationId || "",
   });
+
+  const [showScrollButton, setShowScrollButton] = useState(false);
+
+  const messageListContainerRef = useRef<HTMLDivElement | null>(null);
+
+  const scrollToBottom = () => {
+    if (messageListContainerRef.current) {
+      messageListContainerRef.current.scrollTop =
+        messageListContainerRef.current.scrollHeight;
+    }
+  };
+
+  useEffect(() => {
+    if (messageListContainerRef.current) {
+      const handleScroll = () => {
+        if (messageListContainerRef.current) {
+          if (messageListContainerRef.current.scrollTop < -300) {
+            setShowScrollButton(true);
+          } else {
+            setShowScrollButton(false);
+          }
+        }
+      };
+
+      const container = messageListContainerRef.current;
+      container.addEventListener("scroll", handleScroll);
+
+      return () => {
+        container.removeEventListener("scroll", handleScroll);
+      };
+    }
+  }, []);
 
   useEffect(() => {
     // Set messages
@@ -73,7 +105,13 @@ const useMessageListController = () => {
     });
   }, [socketClient, currentUserData]);
 
-  return { activeMessages, isGetAllMessagesLoading };
+  return {
+    activeMessages,
+    isGetAllMessagesLoading,
+    showScrollButton,
+    scrollToBottom,
+    messageListContainerRef,
+  };
 };
 
 export default useMessageListController;

@@ -38,7 +38,7 @@ server.listen(port, () => {
 
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: process.env.SOCKET_CORS_URL,
     methods: ["GET", "POST"],
   },
 });
