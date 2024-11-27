@@ -5,7 +5,7 @@ interface WrapperProps {
   children: React.ReactNode;
 }
 
-export const socketClient = io("http://localhost:4000");
+export const socketClient = io(import.meta.env.VITE_SOCKET_URL);
 
 const Wrapper: React.FC<WrapperProps> = ({ children }) => {
   return <>{children}</>;
