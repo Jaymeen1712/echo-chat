@@ -3,6 +3,9 @@ import { SingleConversationType, SingleMessageType } from "./types";
 export interface MeResponseType {
   user: {
     userId: string;
+    _id: string;
+    name: string;
+    image?: string;
     email: string;
     iat: number;
     exp: number;

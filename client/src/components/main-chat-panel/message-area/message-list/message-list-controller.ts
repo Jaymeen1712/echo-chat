@@ -2,15 +2,21 @@ import { useGetAllMessagesQuery } from "@/queries";
 import { useAppStore } from "@/store";
 import { GetAllMessagesType, SingleMessageType } from "@/types";
 import { handleGroupMessagesByDate } from "@/utils";
-import { useEffect } from "react";
+import { socketClient } from "@/wrapper";
+import { useEffect, useRef, useState } from "react";
 
 export interface SingleMessageWithTypeType extends SingleMessageType {
   type: "sender" | "receiver";
 }
 
 const useMessageListController = () => {
-  const { activeChat, currentUserData, setActiveMessages, activeMessages } =
-    useAppStore();
+  const {
+    activeChat,
+    currentUserData,
+    setActiveMessages,
+    activeMessages,
+    patchActiveMessages,
+  } = useAppStore();
 
   const {
     refetch: getAllMessagesRefetch,
@@ -20,6 +26,38 @@ const useMessageListController = () => {
   } = useGetAllMessagesQuery({
     conversationId: activeChat?.conversationId || "",
   });
+
+  const [showScrollButton, setShowScrollButton] = useState(false);
+
+  const messageListContainerRef = useRef<HTMLDivElement | null>(null);
+
+  const scrollToBottom = () => {
+    if (messageListContainerRef.current) {
+      messageListContainerRef.current.scrollTop =
+        messageListContainerRef.current.scrollHeight;
+    }
+  };
+
+  useEffect(() => {
+    if (messageListContainerRef.current) {
+      const handleScroll = () => {
+        if (messageListContainerRef.current) {
+          if (messageListContainerRef.current.scrollTop < -300) {
+            setShowScrollButton(true);
+          } else {
+            setShowScrollButton(false);
+          }
+        }
+      };
+
+      const container = messageListContainerRef.current;
+      container.addEventListener("scroll", handleScroll);
+
+      return () => {
+        container.removeEventListener("scroll", handleScroll);
+      };
+    }
+  }, []);
 
   useEffect(() => {
     // Set messages
@@ -44,15 +82,36 @@ const useMessageListController = () => {
 
       setActiveMessages(groupedMessagesByDate);
     }
-  }, [currentUserData?.userId, getAllMessagesDataUpdated, ,]);
+  }, [currentUserData?.userId, getAllMessagesDataUpdated]);
 
   useEffect(() => {
     if (activeChat && !activeChat.isChatTemp) {
       getAllMessagesRefetch();
+    } else {
+      setActiveMessages([]);
     }
   }, [activeChat?.isChatTemp, activeChat?.conversationId]);
 
-  return { activeMessages, isGetAllMessagesLoading };
+  useEffect(() => {
+    socketClient.on("update-message", (data) => {
+      const { message } = data;
+
+      if (
+        activeChat?.conversationId === message.conversation &&
+        message.sender._id !== currentUserData?._id
+      ) {
+        patchActiveMessages(message);
+      }
+    });
+  }, [socketClient, currentUserData]);
+
+  return {
+    activeMessages,
+    isGetAllMessagesLoading,
+    showScrollButton,
+    scrollToBottom,
+    messageListContainerRef,
+  };
 };
 
 export default useMessageListController;

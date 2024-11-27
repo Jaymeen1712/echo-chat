@@ -8,6 +8,7 @@ import {
   CreateConversationResponseType,
   CreateMessageResponseType,
 } from "@/types";
+import { socketClient } from "@/wrapper";
 import { useEffect, useState } from "react";
 
 const useMessageInputController = () => {
@@ -19,6 +20,7 @@ const useMessageInputController = () => {
     patchActiveChat,
     patchActiveMessages,
     patchSubSidebarChats,
+    setIsNewChatOpen,
   } = useAppStore();
 
   const createConversationMutation = useCreateConversationMutation();
@@ -94,8 +96,9 @@ const useMessageInputController = () => {
 
   useEffect(() => {
     if (createConversationData) {
-      const { _id } = createConversationData.data
+      const createdConversation = createConversationData.data
         .data as CreateConversationResponseType;
+      const { _id } = createdConversation;
 
       handleCreateMessage(_id);
     }
@@ -118,6 +121,20 @@ const useMessageInputController = () => {
           ...data,
           type: data.sender === currentUserData.userId ? "receiver" : "sender",
         });
+        setIsNewChatOpen(false);
+
+        // Handle socket
+        socketClient.emit("message-updated", {
+          message: {
+            ...data,
+            sender: {
+              _id: currentUserData.userId,
+              name: currentUserData.name,
+              image: currentUserData.image,
+            },
+            type: "sender",
+          },
+        });
       }
     }
   }, [createMessageData]);
@@ -125,9 +142,13 @@ const useMessageInputController = () => {
   useEffect(() => {
     if (updateConversationData) {
       const updatedConversation = updateConversationData.data.data;
-      console.log("🚀 ~ useEffect ~ updatedConversation:", updatedConversation)
-
       patchSubSidebarChats(updatedConversation);
+
+      // Handle socket
+      socketClient.emit("conversation-updated", {
+        conversation: updatedConversation,
+        receiverId: activeChat?.userId,
+      });
     }
   }, [updateConversationData]);
 
