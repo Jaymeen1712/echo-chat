@@ -10,7 +10,7 @@ const MessageList = () => {
       {!isGetAllMessagesLoading &&
         activeMessages.map(({ date, label, messages }) => (
           <div key={date}>
-            <h1 className="text-center">{label}</h1>
+            <h1 className="mb-2 text-center">{label}</h1>
             <div className="flex flex-col gap-y-2">
               {messages.map((message) => (
                 <MessageItem

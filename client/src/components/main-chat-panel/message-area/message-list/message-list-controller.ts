@@ -2,6 +2,7 @@ import { useGetAllMessagesQuery } from "@/queries";
 import { useAppStore } from "@/store";
 import { GetAllMessagesType, SingleMessageType } from "@/types";
 import { handleGroupMessagesByDate } from "@/utils";
+import { socketClient } from "@/wrapper";
 import { useEffect } from "react";
 
 export interface SingleMessageWithTypeType extends SingleMessageType {
@@ -9,8 +10,13 @@ export interface SingleMessageWithTypeType extends SingleMessageType {
 }
 
 const useMessageListController = () => {
-  const { activeChat, currentUserData, setActiveMessages, activeMessages } =
-    useAppStore();
+  const {
+    activeChat,
+    currentUserData,
+    setActiveMessages,
+    activeMessages,
+    patchActiveMessages,
+  } = useAppStore();
 
   const {
     refetch: getAllMessagesRefetch,
@@ -44,13 +50,28 @@ const useMessageListController = () => {
 
       setActiveMessages(groupedMessagesByDate);
     }
-  }, [currentUserData?.userId, getAllMessagesDataUpdated, ,]);
+  }, [currentUserData?.userId, getAllMessagesDataUpdated]);
 
   useEffect(() => {
     if (activeChat && !activeChat.isChatTemp) {
       getAllMessagesRefetch();
+    } else {
+      setActiveMessages([]);
     }
   }, [activeChat?.isChatTemp, activeChat?.conversationId]);
+
+  useEffect(() => {
+    socketClient.on("update-message", (data) => {
+      const { message } = data;
+
+      if (
+        activeChat?.conversationId === message.conversation &&
+        message.sender._id !== currentUserData?._id
+      ) {
+        patchActiveMessages(message);
+      }
+    });
+  }, [socketClient, currentUserData]);
 
   return { activeMessages, isGetAllMessagesLoading };
 };

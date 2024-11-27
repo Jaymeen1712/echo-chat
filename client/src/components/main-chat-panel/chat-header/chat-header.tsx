@@ -7,7 +7,7 @@ const ChatHeader = () => {
   return (
     <div className="relative text-sm text-black-primary">
       <input
-        className="w-full rounded-xl bg-purple-primary/10 p-3 pl-12 placeholder:text-black-primary/50 focus:outline-none"
+        className="w-full rounded-xl bg-purple-primary/20 p-3 pl-12 placeholder:text-black-primary/50 focus:outline-none"
         placeholder="Search"
         onChange={handleOnChangeSearchInput}
       />

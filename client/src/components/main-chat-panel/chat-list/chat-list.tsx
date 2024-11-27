@@ -8,7 +8,6 @@ interface ChatListProps {
 
 const ChatList: React.FC<ChatListProps> = ({ handleChatClick }) => {
   const { subSidebarChats } = useAppStore();
-  console.log("🚀 ~ subSidebarChats:", subSidebarChats)
 
   return (
     <div className="flex-1 overflow-y-auto">

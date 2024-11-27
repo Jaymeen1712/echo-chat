@@ -1,12 +1,18 @@
 require("dotenv").config();
+const { createServer } = require("node:http");
+const Cors = require("cors");
 const express = require("express");
 const mongoose = require("mongoose");
+const router = require("../routes/routes");
+const { Server } = require("socket.io");
+const {
+  getPopulatedConversation,
+} = require("../utils/getPopulatedConversation");
 
-const app = express();
 const port = process.env.PORT || 4000;
 
-const Cors = require("cors");
-const router = require("../routes/routes");
+const app = express();
+const server = createServer(app);
 
 mongoose.connect(process.env.DATABASE_URL, {
   useNewUrlParser: true,
@@ -26,8 +32,34 @@ db.once("open", () => {
 app.use(express.json());
 app.use(Cors());
 
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`Server is running on port ${port}`);
+});
+
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST"],
+  },
+});
+
+io.on("connection", (socket) => {
+  console.log(`User Connected: ${socket.id}`);
+
+  // Conversations
+  socket.on("conversation-updated", async ({ conversation, receiverId }) => {
+    io.emit("update-conversation", {
+      conversation,
+      receiverId,
+    });
+  });
+
+  // Messages
+  socket.on("message-updated", async ({ message }) => {
+    io.emit("update-message", {
+      message,
+    });
+  });
 });
 
 app.use("/chat-service", router);

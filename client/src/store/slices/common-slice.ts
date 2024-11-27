@@ -17,6 +17,9 @@ export interface CommonSlice {
   setActiveSubSidebarKey: (data: SubSidebarKeysType) => void;
 
   // Main page state types
+  isNewChatOpen: boolean;
+  setIsNewChatOpen: (data: boolean) => void;
+  toggleNewChat: () => void;
   debouncedSearchQuery: string | undefined;
   setDebouncedSearchQuery: (data: string | undefined) => void;
   activeChat: ActiveChatType | undefined;
@@ -42,6 +45,15 @@ export const createCommonSlice: StateCreator<CommonSlice> = (set, get) => ({
     }),
 
   // Main page states
+  isNewChatOpen: false,
+  setIsNewChatOpen: (isNewChatOpen) =>
+    set({
+      isNewChatOpen,
+    }),
+  toggleNewChat: () =>
+    set((state) => ({
+      isNewChatOpen: !state.isNewChatOpen,
+    })),
   debouncedSearchQuery: undefined,
   setDebouncedSearchQuery: (debouncedSearchQuery) =>
     set({
@@ -88,37 +100,46 @@ export const createCommonSlice: StateCreator<CommonSlice> = (set, get) => ({
     set((state) => {
       const { participants, _id, lastMessage, createdAt, updatedAt } =
         newSubSidebarChat;
-      const { content, sender } = lastMessage;
-      const otherParticipant = participants.filter(
-        (participant) => participant._id !== state.currentUserData?.userId,
-      );
-      const { name, image } = otherParticipant[0];
+      const { content, sender } = lastMessage || {};
+      const currentUserId = state.currentUserData?.userId;
 
+      // Find the participant who is not the current user
+      const otherParticipant = participants.find(
+        (participant) => participant._id !== currentUserId,
+      );
+      const { name = "", image = "" } = otherParticipant || {};
+
+      // Construct the new chat object
       const subSidebarChat = {
         image,
         name,
-        content,
+        content: content || "", // Default to an empty string if no content
         conversationId: _id,
-        senderId: sender._id,
+        senderId: sender?._id, // Handle cases where lastMessage or sender might be null
         createdAt,
         updatedAt,
       };
 
-      const subSidebarChats = state.subSidebarChats.map((chat) => {
-        if (chat.conversationId === _id) {
-          return subSidebarChat;
-        }
-        return chat;
+      // Check if the conversation already exists in the subSidebarChats
+      const chatIndex = state.subSidebarChats.findIndex(
+        (chat) => chat.conversationId === _id,
+      );
+
+      let updatedSubSidebarChats = [...state.subSidebarChats];
+
+      if (chatIndex === -1) {
+        updatedSubSidebarChats.push(subSidebarChat);
+      } else {
+        updatedSubSidebarChats[chatIndex] = subSidebarChat;
+      }
+
+      // Sort chats by updatedAt in descending order
+      updatedSubSidebarChats.sort((a, b) => {
+        const aUpdatedAt = new Date(a.updatedAt || 0).getTime();
+        const bUpdatedAt = new Date(b.updatedAt || 0).getTime();
+        return bUpdatedAt - aUpdatedAt;
       });
-      console.log("🚀 ~ subSidebarChats ~ subSidebarChats:", subSidebarChats)
 
-      return {
-        subSidebarChats: subSidebarChats.sort((a, b) => {
-          const aUpdatedAt = a.updatedAt ? new Date(a.updatedAt).getTime() : 0;
-          const bUpdatedAt = b.updatedAt ? new Date(b.updatedAt).getTime() : 0;
-
-          return bUpdatedAt - aUpdatedAt;
-        }),
-      };
+      return { subSidebarChats: updatedSubSidebarChats };
     }),
 });

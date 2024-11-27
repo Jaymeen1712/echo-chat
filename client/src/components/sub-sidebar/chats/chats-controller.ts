@@ -2,7 +2,8 @@ import { useGetAllConversationsQuery } from "@/queries";
 import { useSearchUserQuery } from "@/queries/user.queries";
 import { useAppStore } from "@/store";
 import { GetAllConversationsType } from "@/types";
-import { useCallback, useEffect, useState } from "react";
+import { socketClient } from "@/wrapper";
+import { useCallback, useEffect } from "react";
 
 export interface ChatType {
   image?: string;
@@ -15,13 +16,14 @@ export interface ChatType {
 }
 
 const useChatsSubSideController = () => {
-  const [isNewChatOpen, setIsNewChatOpen] = useState(false);
-
   const {
     debouncedSearchQuery,
     currentUserData,
     setActiveChat,
     setSubSidebarChats,
+    patchSubSidebarChats,
+    isNewChatOpen,
+    toggleNewChat,
   } = useAppStore();
 
   const {
@@ -44,7 +46,7 @@ const useChatsSubSideController = () => {
   // }
 
   const handleClickNewChat = () => {
-    setIsNewChatOpen((prev) => !prev);
+    toggleNewChat();
   };
 
   const handleGetChatList = useCallback(async () => {
@@ -157,6 +159,16 @@ const useChatsSubSideController = () => {
   useEffect(() => {
     handleGetChatList();
   }, [handleGetChatList]);
+
+  useEffect(() => {
+    socketClient.on("update-conversation", (data) => {
+      const { conversation, receiverId } = data;
+
+      if (currentUserData?.userId === receiverId) {
+        patchSubSidebarChats(conversation);
+      }
+    });
+  }, [socketClient, currentUserData]);
 
   return {
     handleClickNewChat,
