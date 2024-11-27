@@ -1,5 +1,5 @@
 {
-  "name": "crud-node-mongo",
+  "name": "chat-app-server",
   "version": "1.0.0",
   "description": "",
   "main": "api/server.js",

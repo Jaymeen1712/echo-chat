@@ -1,0 +1,65 @@
+import { SingleMessageWithTypeType } from "@/components/main-chat-panel/message-area/message-list/message-list-controller";
+import { AxiosError, AxiosResponse } from "axios";
+
+export interface AxiosCustomErrorType extends AxiosError {
+  response: AxiosError["response"] & {
+    data: CustomErrorDataType;
+  };
+}
+interface CustomErrorDataType {
+  message: string;
+}
+
+export interface AxiosCustomResponseType extends AxiosResponse {
+  data: AxiosCustomResponseDataType;
+}
+
+interface AxiosCustomResponseDataType {
+  message: string;
+  data?: any;
+  isError: boolean;
+}
+
+export type SubSidebarKeysType = "chats" | "profile" | "settings";
+
+export interface ActiveChatType {
+  image?: string;
+  name: string;
+  userId?: string;
+  conversationId?: string;
+  isChatTemp: boolean;
+}
+export interface SingleConversationType {
+  _id: string;
+  participants: ParticipantsEntity[];
+  participantsKey: string;
+  lastMessage: SingleMessageType;
+  isGroup: boolean;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
+export interface ParticipantsEntity {
+  _id: string;
+  name: string;
+  image?: string;
+}
+export interface SingleMessageType {
+  _id: string;
+  sender: Sender;
+  content: string;
+  conversation: string;
+  seenBy?: null[] | null;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
+export interface Sender {
+  _id: string;
+  name: string;
+}
+export interface GroupedMessageByDateType {
+  date: string;
+  label: string;
+  messages: SingleMessageWithTypeType[];
+}

@@ -3,7 +3,7 @@ import useSidebarController from "./sidebar-controller";
 import SidebarItem from "./sidebar-item";
 
 const Sidebar = () => {
-  const { primarySidebarItems, userSidebarItems, sidebarActiveItem } =
+  const { primarySidebarItems, userSidebarItems, handleLogoutUser } =
     useSidebarController();
 
   return (
@@ -12,31 +12,23 @@ const Sidebar = () => {
 
       <div className="flex flex-col gap-y-2 overflow-y-auto text-center">
         {primarySidebarItems.map((item) => (
-          <SidebarItem
-            key={item.route}
-            item={item}
-            sidebarActiveItem={sidebarActiveItem}
-          />
+          <SidebarItem key={item.key} item={item} />
         ))}
 
         <div className="mx-5 my-4 h-[0.5px] bg-white-primary opacity-50" />
 
         {userSidebarItems.map((item) => (
-          <SidebarItem
-            key={item.route}
-            item={item}
-            sidebarActiveItem={sidebarActiveItem}
-          />
+          <SidebarItem key={item.key} item={item} />
         ))}
       </div>
 
       <SidebarItem
         item={{
           Icon: BiLogOut,
-          route: "logOut",
+          key: "logOut",
           title: "Log out",
+          onClickHandler: handleLogoutUser,
         }}
-        sidebarActiveItem={sidebarActiveItem}
       />
     </div>
   );

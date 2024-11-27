@@ -1,18 +1,9 @@
-import { useNavigate } from "react-router-dom";
-import { SidebarItemType } from "../sidebar-controller";
+import { useAppStore } from "@/store";
 
-interface SidebarItemControllerProps {
-  item: SidebarItemType;
-}
+const useSidebarItemController = () => {
+  const { activeSubSidebarKey } = useAppStore();
 
-const useSidebarItemController = ({ item }: SidebarItemControllerProps) => {
-  const navigate = useNavigate();
-
-  const handleClickSidebarItem = () => {
-    navigate(`/${item.route}`);
-  };
-
-  return { handleClickSidebarItem };
+  return { activeSubSidebarKey };
 };
 
 export default useSidebarItemController;

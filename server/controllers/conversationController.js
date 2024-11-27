@@ -46,15 +46,28 @@ module.exports.conversation_get = async (req, res) => {
     const user = req.user;
     const userId = new ObjectId(user.userId);
 
-    const conversations = await Conversation.find({
-      participants: userId,
-    })
+    const conversations = await Conversation.find(
+      {
+        participants: userId,
+      },
+      {
+        createdAt: true,
+        updatedAt: true,
+      }
+    )
       .populate("participants", ["name", "image"])
       .populate("lastMessage", ["content"])
+      .populate({
+        path: "lastMessage",
+        populate: {
+          path: "sender",
+          select: ["_id"],
+        },
+      })
       .sort({ updatedAt: -1 });
 
     if (!conversations || conversations.length === 0) {
-      return res.status(404).json(
+      return res.status(202).json(
         handleGetResponse({
           message: `No conversations found for this user.`,
           data: {
@@ -67,7 +80,7 @@ module.exports.conversation_get = async (req, res) => {
     return res.status(200).json(
       handleGetResponse({
         message: `Conversations fetched successfully.`,
-        data: conversations,
+        data: { conversations },
       })
     );
   } catch (error) {
@@ -79,7 +92,7 @@ module.exports.conversation_get = async (req, res) => {
   }
 };
 
-module.exports.conversation_put = async (req, res) => {
+module.exports.conversation_patch = async (req, res) => {
   try {
     const { conversationId, lastMessageId } = req.body;
 
@@ -100,10 +113,20 @@ module.exports.conversation_put = async (req, res) => {
       },
       {
         lastMessage,
+      },
+      {
+        new: true,
       }
     )
       .populate("participants", ["name", "image"])
       .populate("lastMessage", ["content"])
+      .populate({
+        path: "lastMessage",
+        populate: {
+          path: "sender",
+          select: ["_id"],
+        },
+      })
       .sort({ updatedAt: -1 });
 
     if (!conversation) {
@@ -132,7 +155,7 @@ module.exports.conversation_put = async (req, res) => {
 
 module.exports.conversation_delete = async (req, res) => {
   try {
-    const { conversationId } = req.body;
+    const { conversationId } = req.params;
 
     if (!conversationId) {
       return res.status(400).json(

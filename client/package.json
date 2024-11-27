@@ -1,5 +1,5 @@
 {
-  "name": "learn-react",
+  "name": "chat-app-client",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -14,12 +14,14 @@
     "@tanstack/react-query": "4.24.4",
     "axios": "^1.7.7",
     "js-cookie": "^3.0.5",
+    "moment": "^2.30.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.53.2",
     "react-icons": "^5.3.0",
     "react-router-dom": "^6.28.0",
-    "yup": "^1.4.0"
+    "yup": "^1.4.0",
+    "zustand": "^5.0.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.13.0",

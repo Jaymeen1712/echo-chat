@@ -1,56 +1,57 @@
-import { useEffect, useState } from "react";
+import { useAppStore } from "@/store";
+import Cookies from "js-cookie";
+import { useCallback, useMemo } from "react";
 import { IconType } from "react-icons";
 import { FaSlidersH, FaUser } from "react-icons/fa";
 import { IoChatbox } from "react-icons/io5";
-import { useLocation } from "react-router-dom";
-import { SIDEBAR_KEYS } from "../../enums";
+import { SIDEBAR_KEYS, USER_ACCESS_KEY } from "../../enums";
 
 export interface SidebarItemType {
-  route: string;
+  key: string;
   title: string;
   Icon: IconType;
-  onClickHandler?: () => void;
+  onClickHandler: () => void;
 }
 
-const primarySidebarItems: SidebarItemType[] = [
-  {
-    route: SIDEBAR_KEYS.ALL_CHATS.route,
-    title: SIDEBAR_KEYS.ALL_CHATS.title,
-    Icon: IoChatbox,
-  },
-];
-
-const userSidebarItems: SidebarItemType[] = [
-  {
-    route: SIDEBAR_KEYS.PROFILE.route,
-    title: SIDEBAR_KEYS.PROFILE.title,
-    Icon: FaUser,
-  },
-  {
-    route: SIDEBAR_KEYS.EDIT.route,
-    title: SIDEBAR_KEYS.EDIT.title,
-    Icon: FaSlidersH,
-  },
-];
-
 const useSidebarController = () => {
-  const [sidebarActiveItem, setSidebarActiveItem] = useState("");
+  const { setActiveSubSidebarKey } = useAppStore();
 
-  const location = useLocation();
+  const primarySidebarItems: SidebarItemType[] = [
+    {
+      key: SIDEBAR_KEYS.ALL_CHATS.key,
+      title: SIDEBAR_KEYS.ALL_CHATS.title,
+      Icon: IoChatbox,
+      onClickHandler: () => setActiveSubSidebarKey(SIDEBAR_KEYS.ALL_CHATS.key),
+    },
+  ];
 
-  useEffect(() => {
-    if (location) {
-      const { pathname } = location;
+  const userSidebarItems: SidebarItemType[] = useMemo(
+    () => [
+      {
+        key: SIDEBAR_KEYS.PROFILE.key,
+        title: SIDEBAR_KEYS.PROFILE.title,
+        Icon: FaUser,
+        onClickHandler: () => setActiveSubSidebarKey(SIDEBAR_KEYS.PROFILE.key),
+      },
+      {
+        key: SIDEBAR_KEYS.EDIT.key,
+        title: SIDEBAR_KEYS.EDIT.title,
+        Icon: FaSlidersH,
+        onClickHandler: () => setActiveSubSidebarKey(SIDEBAR_KEYS.EDIT.key),
+      },
+    ],
+    [],
+  );
 
-      const sidebarActiveItem = pathname.split("/")[1];
-      setSidebarActiveItem(sidebarActiveItem);
-    }
-  }, [location]);
+  const handleLogoutUser = useCallback(async () => {
+    Cookies.remove(USER_ACCESS_KEY.TOKEN);
+    window.location.href = "/login";
+  }, []);
 
   return {
+    handleLogoutUser,
     primarySidebarItems,
     userSidebarItems,
-    sidebarActiveItem,
   };
 };
 
