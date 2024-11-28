@@ -17,6 +17,7 @@ const MessageInput = () => {
     isAttachContainerOpen,
     handleToggleAttachButton,
     attachContainerRef,
+    isSendButtonDisable,
   } = useMessageInputController();
 
   return (
@@ -95,7 +96,7 @@ const MessageInput = () => {
           onChange={handleOnMessageInputChange}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
-              handleMessageInputSubmit();
+              !isSendButtonDisable && handleMessageInputSubmit();
             }
           }}
           value={message}
@@ -163,9 +164,11 @@ const MessageInput = () => {
           size={25}
         />
         <FiSend
-          className="absolute right-4 top-1/2 -translate-x-1/2 -translate-y-1/2 cursor-pointer text-purple-primary"
+          className={`absolute right-4 top-1/2 -translate-x-1/2 -translate-y-1/2 cursor-pointer text-purple-primary ${isSendButtonDisable && "cursor-not-allowed opacity-50"}`}
           size={23}
-          onClick={handleMessageInputSubmit}
+          onClick={() => {
+            !isSendButtonDisable && handleMessageInputSubmit();
+          }}
         />
       </div>
     </div>

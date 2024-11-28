@@ -22,7 +22,7 @@ function LoginPage() {
         description="Please enter your details to sign in"
         footer={
           <div className="flex items-center justify-center gap-x-2">
-            <span className="text-sm opacity-50">Already have an account?</span>
+            <span className="text-sm opacity-50">Don't have an account?</span>
             <span
               className="cursor-pointer font-semibold"
               onClick={handleRedirectToSignUpPage}
