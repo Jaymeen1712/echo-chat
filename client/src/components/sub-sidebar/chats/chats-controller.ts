@@ -8,7 +8,7 @@ import { useCallback, useEffect } from "react";
 export interface ChatType {
   image?: string;
   name: string;
-  senderId: string;
+  senderId?: string;
   conversationId?: string;
   content?: string;
   createdAt?: string;

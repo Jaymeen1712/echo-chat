@@ -98,9 +98,7 @@ export const createCommonSlice: StateCreator<CommonSlice> = (set, get) => ({
     }),
   patchSubSidebarChats: (newSubSidebarChat) =>
     set((state) => {
-      const { participants, _id, lastMessage, createdAt, updatedAt } =
-        newSubSidebarChat;
-      const { content, sender } = lastMessage || {};
+      const { participants, _id, createdAt, updatedAt } = newSubSidebarChat;
       const currentUserId = state.currentUserData?.userId;
 
       // Find the participant who is not the current user
@@ -113,9 +111,9 @@ export const createCommonSlice: StateCreator<CommonSlice> = (set, get) => ({
       const subSidebarChat = {
         image,
         name,
-        content: content || "", // Default to an empty string if no content
+        content: newSubSidebarChat?.lastMessage?.content || "", // Default to an empty string if no content
         conversationId: _id,
-        senderId: sender?._id, // Handle cases where lastMessage or sender might be null
+        senderId: newSubSidebarChat?.lastMessage?.sender?._id, // Handle cases where lastMessage or sender might be null
         createdAt,
         updatedAt,
       };

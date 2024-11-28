@@ -10,7 +10,7 @@ const ChatItem: React.FC<ChatItemProps> = ({ chat, handleChatClick }) => {
   const { isCurrentChatItemActive, isCurrentUserLastMessageOwner } =
     useChatItemController({ chat });
 
-  const { name, content = "", conversationId } = chat;
+  const { name, conversationId } = chat;
 
   return (
     <div
@@ -28,7 +28,7 @@ const ChatItem: React.FC<ChatItemProps> = ({ chat, handleChatClick }) => {
               (isCurrentUserLastMessageOwner ? "You:" : `${name}:`)}
           </span>
           <span className="line-clamp-1 flex-1 text-ellipsis break-all opacity-50">
-            {content}
+            {chat?.content}
           </span>
         </span>
       </div>

@@ -33,7 +33,7 @@ export interface SingleConversationType {
   _id: string;
   participants: ParticipantsEntity[];
   participantsKey: string;
-  lastMessage: SingleMessageType;
+  lastMessage?: SingleMessageType;
   isGroup: boolean;
   createdAt: string;
   updatedAt: string;
