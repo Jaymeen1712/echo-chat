@@ -12,7 +12,7 @@ import {
 import { convertFileToBase64 } from "@/utils";
 import { socketClient } from "@/wrapper";
 import imageCompression from "browser-image-compression";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "react-toastify";
 
 const useMessageInputController = () => {
@@ -45,6 +45,11 @@ const useMessageInputController = () => {
 
   const { mutate: updateConversationMutate, data: updateConversationData } =
     updateConversationMutation;
+
+  const isSendButtonDisable = useMemo(
+    () => !(!!message || fileAttachments.size),
+    [message, fileAttachments],
+  );
 
   const handleCreateConversation = () => {
     if (!activeChat) return;
@@ -266,6 +271,7 @@ const useMessageInputController = () => {
     handleToggleAttachButton,
     attachContainerRef,
     handleAttachOnChange,
+    isSendButtonDisable,
   };
 };
 

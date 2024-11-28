@@ -126,7 +126,7 @@ const useChatsSubSideController = () => {
         if (!conversation.isGroup) {
           const { participants, _id, lastMessage, createdAt, updatedAt } =
             conversation;
-          const { content, sender } = lastMessage;
+
           const otherParticipant = participants.filter(
             (participant) => participant._id !== currentUserData.userId,
           );
@@ -137,9 +137,9 @@ const useChatsSubSideController = () => {
             {
               image,
               name,
-              content,
+              content: lastMessage?.content,
               conversationId: _id,
-              senderId: sender._id,
+              senderId: lastMessage?.sender._id,
               createdAt,
               updatedAt,
             },
