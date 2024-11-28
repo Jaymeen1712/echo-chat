@@ -47,11 +47,12 @@ export interface ParticipantsEntity {
 export interface SingleMessageType {
   _id: string;
   sender: Sender;
-  content: string;
+  content?: string;
   conversation: string;
   seenBy?: null[] | null;
   createdAt: string;
   updatedAt: string;
+  files?: FileType[];
   __v: number;
 }
 export interface Sender {
@@ -62,4 +63,10 @@ export interface GroupedMessageByDateType {
   date: string;
   label: string;
   messages: SingleMessageWithTypeType[];
+}
+export interface FileType {
+  url: string;
+  name: string;
+  size: number;
+  type: string;
 }

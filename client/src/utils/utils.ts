@@ -59,7 +59,9 @@ export const handleGroupMessagesByDate = (
 
   // Sort messages in descending order for each group
   Object.values(grouped).forEach((group) => {
-    group.messages.sort((a, b) => moment(b.createdAt).isBefore(a.createdAt) ? 1 : -1);
+    group.messages.sort((a, b) =>
+      moment(b.createdAt).isBefore(a.createdAt) ? 1 : -1,
+    );
   });
 
   return Object.values(grouped);
@@ -98,8 +100,31 @@ export const handleAddMessageToGroup = (
 
   // Sort messages in descending order for the group that the new message was added to
   groupedMessages.forEach((group) => {
-    group.messages.sort((a, b) => moment(b.createdAt).isBefore(a.createdAt) ? 1 : -1);
+    group.messages.sort((a, b) =>
+      moment(b.createdAt).isBefore(a.createdAt) ? 1 : -1,
+    );
   });
 
   return groupedMessages;
+};
+
+export const convertFileToBase64 = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onloadend = () => {
+      // Check if the result is a string (Base64)
+      if (typeof reader.result === "string") {
+        resolve(reader.result); // Only resolve if it's a string
+      } else {
+        reject(new Error("File could not be converted to a Base64 string"));
+      }
+    };
+
+    reader.onerror = (error) => {
+      reject(error);
+    };
+
+    reader.readAsDataURL(file); // Convert file to base64 string
+  });
 };

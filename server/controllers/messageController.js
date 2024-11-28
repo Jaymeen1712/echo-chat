@@ -5,21 +5,22 @@ const { handleGetResponse } = require("../utils/utils");
 
 module.exports.message_post = async (req, res) => {
   try {
-    const { senderId, conversationId, content } = req.body;
+    const { senderId, conversationId, content, files } = req.body;
 
     const sender = new ObjectId(senderId);
     const conversation = new ObjectId(conversationId);
 
-    if (!senderId || !conversationId || !content) {
+    if (!senderId || !conversationId) {
       return res
         .status(400)
-        .json({ error: "SenderId, conversationId and content are required." });
+        .json({ error: "SenderId and conversationId are required." });
     }
 
     const message = new Message({
       sender,
       conversation,
       content,
+      files,
     });
 
     await message.save();

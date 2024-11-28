@@ -1,4 +1,6 @@
 import moment from "moment";
+import { IoMdDownload } from "react-icons/io";
+import { toast } from "react-toastify";
 import { SingleMessageWithTypeType } from "../message-list-controller";
 
 interface MessageItemProps {
@@ -7,8 +9,21 @@ interface MessageItemProps {
 }
 
 const MessageItem: React.FC<MessageItemProps> = ({ type, message }) => {
-  const { content, sender, createdAt } = message;
+  const { sender, createdAt } = message;
   const { name } = sender;
+
+  const handleDownload = (url: string, name: string) => {
+    try {
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = name;
+      anchor.click();
+      anchor.remove();
+    } catch (error) {
+      console.error("Error downloading the file:", error);
+      toast.error("Failed to download the file. Please try again.");
+    }
+  };
 
   return (
     <div
@@ -28,11 +43,79 @@ const MessageItem: React.FC<MessageItemProps> = ({ type, message }) => {
             <h4 className={`font-semibold text-purple-dark-1`}>{name}</h4>
           )}
 
-          <span
-            className={`font-medium ${type !== "sender" && "!text-white-primary"}`}
-          >
-            {content}
-          </span>
+          <div>
+            {message?.files?.length ? (
+              <div className="flex gap-x-4 overflow-x-auto pb-3 pt-2">
+                {message?.files.map(({ url, name, type }, index) => (
+                  <div
+                    className="group relative col-span-1 rounded-xl bg-white-primary"
+                    key={index}
+                  >
+                    {type.startsWith("image/") ? (
+                      // Render Image
+                      <img
+                        src={url}
+                        alt={`Image ${index}`}
+                        className="h-[180px] w-[180px] rounded-xl bg-white-primary object-cover transition duration-300 group-hover:brightness-50"
+                      />
+                    ) : (
+                      // Render Document
+                      <div className="flex h-[180px] w-[180px] flex-col items-center justify-center gap-y-4 rounded-xl bg-white-primary p-3 text-black-primary transition duration-300 group-hover:brightness-50">
+                        {/* PDF Icon */}
+                        {type.includes("pdf") && (
+                          <img
+                            src={"/pdf-icon.png"} // Custom PDF icon
+                            alt={`PDF ${index}`}
+                            className="h-[40px] w-[40px] object-contain"
+                          />
+                        )}
+
+                        {/* Word Document Icon */}
+                        {(type.includes("doc") ||
+                          type.includes("docx") ||
+                          type.includes("ms-doc") ||
+                          type.includes("msword")) && (
+                          <img
+                            src={"/word-icon.webp"} // Custom Word icon
+                            alt={`Word ${index}`}
+                            className="h-[40px] w-[40px] object-contain"
+                          />
+                        )}
+
+                        {/* Excel Document Icon */}
+                        {type.includes("excel") && (
+                          <img
+                            src={"/excel-icon.png"} // Custom Excel icon
+                            alt={`Excel ${index}`}
+                            className="h-[40px] w-[40px] object-contain"
+                          />
+                        )}
+
+                        {/* Display Document Name */}
+                        <span className="line-clamp-4 break-all text-center text-sm">
+                          {name}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Download Icon */}
+                    <IoMdDownload
+                      className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 transform cursor-pointer text-2xl font-bold text-white opacity-0 transition duration-300 hover:fill-purple-primary group-hover:opacity-100"
+                      onClick={() => handleDownload(url, name)}
+                    />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              ""
+            )}
+
+            <span
+              className={`font-medium ${type !== "sender" && "!text-white-primary"}`}
+            >
+              {message?.content}
+            </span>
+          </div>
 
           <div
             className={`flex items-center gap-x-2 ${type !== "sender" && "!text-white-primary"}`}
@@ -43,7 +126,7 @@ const MessageItem: React.FC<MessageItemProps> = ({ type, message }) => {
               <span>23</span>
               <span>{moment(createdAt).format("hh:mm A")}</span>
             </div>
-          </div>  
+          </div>
         </div>
       </div>
     </div>

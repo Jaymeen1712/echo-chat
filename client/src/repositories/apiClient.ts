@@ -9,6 +9,7 @@ import Cookies from "js-cookie";
 
 const apiClient = axios.create({
   baseURL: `${import.meta.env.VITE_API_URL}`,
+  timeout: 60000,
 });
 
 const logOnDev = (
