@@ -5,9 +5,6 @@ const express = require("express");
 const mongoose = require("mongoose");
 const router = require("../routes/routes");
 const { Server } = require("socket.io");
-const {
-  getPopulatedConversation,
-} = require("../utils/getPopulatedConversation");
 
 const port = process.env.PORT || 4000;
 
@@ -29,7 +26,8 @@ db.once("open", () => {
   console.log("Database Connection Established!");
 });
 
-app.use(express.json());
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ limit: "10mb", extended: true }));
 app.use(Cors());
 
 server.listen(port, () => {

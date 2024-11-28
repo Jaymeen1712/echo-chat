@@ -3,7 +3,8 @@
   "functions": {
     "api/server.js": {
       "memory": 1024,
-      "maxDuration": 60
+      "maxDuration": 60,
+      "maxSize": "10mb"
     }
   },
   "routes": [
