@@ -3,7 +3,7 @@ import { GrAttachment } from "react-icons/gr";
 import { IoMdPhotos } from "react-icons/io";
 import { IoDocumentText } from "react-icons/io5";
 import { MdDelete } from "react-icons/md";
-import { PiMicrophoneBold } from "react-icons/pi";
+import AudioRecorder from "./audio-recorder";
 import useMessageInputController from "./message-input-controller";
 
 const MessageInput = () => {
@@ -13,26 +13,38 @@ const MessageInput = () => {
     handleMessageInputSubmit,
     handleAttachOnChange,
     fileAttachments,
-    handleDeleteImage,
+    handleDeleteFile,
     isAttachContainerOpen,
     handleToggleAttachButton,
     attachContainerRef,
     isSendButtonDisable,
+    audioUrl,
+    setAudioUrl,
+    setAudioBlob,
   } = useMessageInputController();
 
   return (
     <div className="rounded-xl bg-purple-primary/10 text-sm text-black-primary">
+      {audioUrl && (
+        <div className="flex gap-x-4 overflow-x-auto p-3">
+          <audio controls>
+            <source src={audioUrl} type="audio/wav" />
+            Your browser does not support the audio element.
+          </audio>
+        </div>
+      )}
+
       {fileAttachments.size ? (
         <div className="flex gap-x-4 overflow-x-auto p-3">
           {Array.from(fileAttachments.entries()).map(
-            ([id, { url, type, name }]) => (
+            ([id, { data, type, name }]) => (
               <div
                 className="group relative col-span-1 rounded-xl bg-white-primary"
                 key={id}
               >
                 {type.startsWith("image/") ? (
                   <img
-                    src={url}
+                    src={data}
                     alt={`Image ${id}`}
                     className="h-[180px] w-[180px] rounded-xl bg-white-primary object-cover transition duration-300 group-hover:brightness-50"
                   />
@@ -68,6 +80,15 @@ const MessageInput = () => {
                       />
                     )}
 
+                    {/* Audio icon */}
+                    {type.includes("audio") && (
+                      <img
+                        src={"/audio-icon.png"} // Custom audio icon
+                        alt={`Audio ${id}`}
+                        className="h-[40px] w-[40px] object-contain"
+                      />
+                    )}
+
                     {/* Display document name */}
                     <span className="line-clamp-4 break-all text-center text-sm">
                       {name}
@@ -77,8 +98,8 @@ const MessageInput = () => {
 
                 {/* Delete Icon */}
                 <MdDelete
-                  className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 transform cursor-pointer text-2xl font-bold text-white opacity-0 transition duration-300 group-hover:opacity-100"
-                  onClick={() => handleDeleteImage(id)}
+                  className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 transform cursor-pointer text-2xl font-bold text-white opacity-0 transition duration-300 hover:text-red-600 group-hover:opacity-100"
+                  onClick={() => handleDeleteFile(id)}
                 />
               </div>
             ),
@@ -154,15 +175,21 @@ const MessageInput = () => {
         ) : null}
 
         <GrAttachment
-          className={`absolute left-8 top-1/2 -translate-x-1/2 -translate-y-1/2 cursor-pointer text-purple-primary ${fileAttachments.size >= 3 && "cursor-not-allowed opacity-50"}`}
+          className={`absolute left-8 top-1/2 -translate-x-1/2 -translate-y-1/2 cursor-pointer text-purple-primary ${(fileAttachments.size >= 3 || audioUrl) && "cursor-not-allowed opacity-50"}`}
           size={23}
           onClick={handleToggleAttachButton}
         />
 
-        <PiMicrophoneBold
-          className="absolute right-14 top-1/2 -translate-x-1/2 -translate-y-1/2 cursor-pointer text-purple-primary"
-          size={25}
-        />
+        <div
+          className={`absolute right-14 top-1/2 -translate-x-1/2 -translate-y-1/2 ${fileAttachments.size && "cursor-not-allowed opacity-50"}`}
+        >
+          <AudioRecorder
+            setAudioUrl={setAudioUrl}
+            setAudioBlob={setAudioBlob}
+            isDisabled={!!fileAttachments.size}
+          />
+        </div>
+
         <FiSend
           className={`absolute right-4 top-1/2 -translate-x-1/2 -translate-y-1/2 cursor-pointer text-purple-primary ${isSendButtonDisable && "cursor-not-allowed opacity-50"}`}
           size={23}

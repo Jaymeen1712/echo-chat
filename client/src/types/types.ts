@@ -65,7 +65,7 @@ export interface GroupedMessageByDateType {
   messages: SingleMessageWithTypeType[];
 }
 export interface FileType {
-  url: string;
+  data: string;
   name: string;
   size: number;
   type: string;

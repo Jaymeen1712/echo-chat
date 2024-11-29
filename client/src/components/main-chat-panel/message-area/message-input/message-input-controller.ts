@@ -21,6 +21,8 @@ const useMessageInputController = () => {
   const [fileAttachments, setFileAttachments] = useState<Map<string, FileType>>(
     new Map(),
   );
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
 
   const attachContainerRef = useRef<HTMLDivElement | null>(null);
 
@@ -47,7 +49,7 @@ const useMessageInputController = () => {
     updateConversationMutation;
 
   const isSendButtonDisable = useMemo(
-    () => !(!!message || fileAttachments.size),
+    () => !(!!message || fileAttachments.size || !audioUrl),
     [message, fileAttachments],
   );
 
@@ -80,11 +82,13 @@ const useMessageInputController = () => {
 
     if (!conversationId) return;
 
+    const files = Array.from(fileAttachments.values()).flat();
+
     createMessageMutate({
       content: message,
       conversationId: activeChat.conversationId || conversationId,
       senderId: userId,
-      files: Array.from(fileAttachments.values()).flat(),
+      files,
     });
   };
 
@@ -125,10 +129,7 @@ const useMessageInputController = () => {
           toast.warn("You can only attach 3 files.");
         }
 
-        const newAttachments: Map<
-          string,
-          { url: string; name: string; type: string; size: number }
-        > = new Map(fileAttachments);
+        const newAttachments = new Map(fileAttachments);
 
         const maxFiles = filesLength > 3 ? 3 - totalFilesCount : filesLength;
 
@@ -144,22 +145,24 @@ const useMessageInputController = () => {
             };
 
             const compressedFile = await imageCompression(file, options);
-            const base64File = await convertFileToBase64(compressedFile);
+            const base64URL = await convertFileToBase64(compressedFile);
             const randomId = Math.random().toString(36).substr(2, 9);
 
             newAttachments.set(randomId, {
-              url: base64File, // Base64 for images
+              data: base64URL,
               name: file.name,
               type: file.type,
               size: compressedFile.size,
             });
           } else {
-            // If it's a document (PDF, Word, etc.), store as Blob
-            const blobUrl = URL.createObjectURL(file); // Create a URL for the Blob file
+            const base64URL = await convertFileToBase64(file);
+            // // If it's a document (PDF, Word, etc.), store as Blob
+            // const arrayBuffer = await file.arrayBuffer();
+            // const dataBlob = new Blob([arrayBuffer], { type: file.type });
             const randomId = Math.random().toString(36).substr(2, 9);
 
             newAttachments.set(randomId, {
-              url: blobUrl, // Blob URL for documents
+              data: base64URL,
               name: file.name,
               type: file.type,
               size: file.size,
@@ -167,7 +170,7 @@ const useMessageInputController = () => {
           }
         }
 
-        setFileAttachments(newAttachments); // Update state with new files
+        setFileAttachments(newAttachments);
       }
     } catch (error) {
       toast.warn("Something went wrong!, Please try again");
@@ -175,14 +178,18 @@ const useMessageInputController = () => {
     }
   };
 
-  const handleDeleteImage = (id: string) => {
+  const handleDeleteFile = (id: string) => {
     const tempImages = new Map(fileAttachments);
     tempImages.delete(id);
     setFileAttachments(tempImages);
+    setAudioBlob(null);
+    setAudioUrl(null);
   };
 
   const handleToggleAttachButton = () => {
-    setIsAttachContainerOpen((prev) => !prev);
+    if (!(fileAttachments.size >= 3 || audioUrl)) {
+      setIsAttachContainerOpen((prev) => !prev);
+    }
   };
 
   useEffect(() => {
@@ -214,6 +221,8 @@ const useMessageInputController = () => {
         });
         setIsNewChatOpen(false);
         setFileAttachments(new Map());
+        setAudioUrl(null);
+        setAudioBlob(null);
 
         // Handle socket
         socketClient.emit("message-updated", {
@@ -249,6 +258,24 @@ const useMessageInputController = () => {
   }, []);
 
   useEffect(() => {
+    if (audioBlob && audioUrl) {
+      const audioFileAttachments: Map<string, FileType> = new Map();
+      const randomId = Math.random().toString(36).substr(2, 9);
+
+      const uniqueName = `audio_${new Date().toISOString()}_${randomId}.wav`;
+
+      audioFileAttachments.set(randomId, {
+        data: audioUrl,
+        name: uniqueName,
+        type: "audio/wav",
+        size: audioBlob.size,
+      });
+
+      setFileAttachments(audioFileAttachments);
+    }
+  }, [audioBlob, audioUrl]);
+
+  useEffect(() => {
     if (updateConversationData) {
       const updatedConversation = updateConversationData.data.data;
       patchSubSidebarChats(updatedConversation);
@@ -266,12 +293,15 @@ const useMessageInputController = () => {
     handleOnMessageInputChange,
     handleMessageInputSubmit,
     fileAttachments,
-    handleDeleteImage,
+    handleDeleteFile,
     isAttachContainerOpen,
     handleToggleAttachButton,
     attachContainerRef,
     handleAttachOnChange,
     isSendButtonDisable,
+    audioUrl,
+    setAudioUrl,
+    setAudioBlob,
   };
 };
 

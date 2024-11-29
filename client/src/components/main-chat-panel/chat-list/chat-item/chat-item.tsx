@@ -7,8 +7,11 @@ interface ChatItemProps {
 }
 
 const ChatItem: React.FC<ChatItemProps> = ({ chat, handleChatClick }) => {
-  const { isCurrentChatItemActive, isCurrentUserLastMessageOwner } =
-    useChatItemController({ chat });
+  const {
+    isCurrentChatItemActive,
+    isCurrentUserLastMessageOwner,
+    lastMessage,
+  } = useChatItemController({ chat });
 
   const { name, conversationId } = chat;
 
@@ -28,7 +31,7 @@ const ChatItem: React.FC<ChatItemProps> = ({ chat, handleChatClick }) => {
               (isCurrentUserLastMessageOwner ? "You:" : `${name}:`)}
           </span>
           <span className="line-clamp-1 flex-1 text-ellipsis break-all opacity-50">
-            {chat?.content}
+            {lastMessage}
           </span>
         </span>
       </div>
