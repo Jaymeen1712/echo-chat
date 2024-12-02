@@ -70,3 +70,12 @@ export interface FileType {
   size: number;
   type: string;
 }
+export interface ReceivedOfferType {
+  offer: RTCSessionDescriptionInit;
+  senderDetails: CallingSenderReceiverDetails;
+}
+export interface CallingSenderReceiverDetails {
+  userId: string;
+  image?: string;
+  name: string;
+}

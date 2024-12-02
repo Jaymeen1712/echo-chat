@@ -131,7 +131,7 @@ const useChatsSubSideController = () => {
           const otherParticipant = participants.filter(
             (participant) => participant._id !== currentUserData.userId,
           );
-          const { name, image } = otherParticipant[0];
+          const { name, image, _id: senderId } = otherParticipant[0];
 
           chats = [
             ...chats,
@@ -140,7 +140,7 @@ const useChatsSubSideController = () => {
               name,
               content: lastMessage?.content,
               conversationId: _id,
-              senderId: lastMessage?.sender._id,
+              senderId,
               createdAt,
               updatedAt,
               files: lastMessage?.files,

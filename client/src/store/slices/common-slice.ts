@@ -4,6 +4,7 @@ import {
   ActiveChatType,
   GroupedMessageByDateType,
   MeResponseType,
+  ReceivedOfferType,
   SingleConversationType,
   SubSidebarKeysType,
 } from "@/types";
@@ -15,6 +16,8 @@ export interface CommonSlice {
   setCurrentUserData: (data: MeResponseType["user"] | undefined) => void;
   activeSubSidebarKey: SubSidebarKeysType;
   setActiveSubSidebarKey: (data: SubSidebarKeysType) => void;
+  // currentUserData: MeResponseType["user"] | undefined;
+  // setCurrentUserData: (data: MeResponseType["user"] | undefined) => void;
 
   // Main page state types
   isNewChatOpen: boolean;
@@ -31,6 +34,12 @@ export interface CommonSlice {
   subSidebarChats: ChatType[];
   setSubSidebarChats: (data: ChatType[]) => void;
   patchSubSidebarChats: (data: SingleConversationType) => void;
+
+  // Calling state types
+  receivedOffer: ReceivedOfferType | undefined;
+  setReceivedOffer: (data: ReceivedOfferType | undefined) => void;
+  receivedCandidate: RTCIceCandidateInit | undefined;
+  setReceivedCandidate: (data: RTCIceCandidateInit | undefined) => void;
 }
 
 export const createCommonSlice: StateCreator<CommonSlice> = (set, get) => ({
@@ -140,5 +149,17 @@ export const createCommonSlice: StateCreator<CommonSlice> = (set, get) => ({
       });
 
       return { subSidebarChats: updatedSubSidebarChats };
+    }),
+
+  // Calling states
+  receivedOffer: undefined,
+  setReceivedOffer: (receivedOffer) =>
+    set({
+      receivedOffer,
+    }),
+  receivedCandidate: undefined,
+  setReceivedCandidate: (receivedCandidate) =>
+    set({
+      receivedCandidate,
     }),
 });

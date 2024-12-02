@@ -34,6 +34,8 @@ server.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
 
+const clients = {};
+
 const io = new Server(server, {
   cors: {
     origin: process.env.SOCKET_CORS_URL,
@@ -42,7 +44,26 @@ const io = new Server(server, {
 });
 
 io.on("connection", (socket) => {
-  console.log(`User Connected: ${socket.id}`);
+  // console.log(`User Connected: ${socket.id}`);
+
+  socket.on("register", (userId) => {
+    if (userId) {
+      clients[userId] = socket.id;
+    }
+
+    // Notify all clients about the updated user list
+    // io.emit("users", clients);
+  });
+
+  socket.on("disconnect", () => {
+    const disconnectedUserId = Object.keys(clients).find(
+      (key) => clients[key] === socket.id
+    );
+    if (disconnectedUserId) delete clients[disconnectedUserId];
+
+    // Notify all clients about the updated user list
+    // io.emit("users", clients);
+  });
 
   // Conversations
   socket.on("conversation-updated", async ({ conversation, receiverId }) => {
@@ -57,6 +78,55 @@ io.on("connection", (socket) => {
     io.emit("update-message", {
       message,
     });
+  });
+
+  // Relay offer to the target user
+  socket.on("send-offer", ({ senderUserDetails, targetUserId, offer }) => {
+    const targetUserSocketId = clients[targetUserId];
+    if (targetUserSocketId) {
+      io.to(targetUserSocketId).emit("receive-offer", {
+        senderUserDetails,
+        targetUserId,
+        offer,
+      });
+      console.log(`Offer sent from ${socket.id} to ${targetUserId}`);
+    } else {
+      console.error(`Target user ${targetUserId} not found`);
+    }
+  });
+
+  // Relay answer to the target user
+  socket.on("send-answer", ({ senderUserId, answer }) => {
+    const targetUserSocketId = clients[senderUserId];
+    if (targetUserSocketId) {
+      io.to(targetUserSocketId).emit("receive-answer", {
+        answer,
+      });
+      console.log(`Answer sent from ${socket.id} to ${senderUserId}`);
+    } else {
+      console.error(`Target user ${senderUserId} not found`);
+    }
+  });
+
+  socket.on("send-ice-candidate", ({ targetUserId, candidate }) => {
+    console.log(`ICE Candidate from ${socket.id} to ${targetUserId}`);
+    const targetUserSocketId = clients[targetUserId];
+
+    if (targetUserSocketId) {
+      io.to(targetUserSocketId).emit("receive-ice-candidate", {
+        targetUserId,
+        candidate,
+      });
+      console.log(`Relayed ICE candidate to ${targetUserId}`);
+    } else {
+      console.error(`Target user ${targetUserId} not found`);
+    }
+  });
+
+  // Handle disconnection
+  socket.on("disconnect", () => {
+    // console.log(`User disconnected: ${socket.id}`);
+    delete clients[socket.id];
   });
 });
 

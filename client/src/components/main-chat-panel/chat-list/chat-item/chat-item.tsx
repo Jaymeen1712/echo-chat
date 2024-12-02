@@ -26,10 +26,11 @@ const ChatItem: React.FC<ChatItemProps> = ({ chat, handleChatClick }) => {
       <div className="flex-1">
         <h4 className="text-base font-semibold leading-7">{name}</h4>
         <span className="flex gap-x-2 leading-7">
-          <span className="text-purple-primary">
-            {conversationId &&
-              (isCurrentUserLastMessageOwner ? "You:" : `${name}:`)}
-          </span>
+          {conversationId && (
+            <span className="text-purple-primary">
+              {isCurrentUserLastMessageOwner ? "You:" : `${name}:`}
+            </span>
+          )}
           <span className="line-clamp-1 flex-1 text-ellipsis break-all opacity-50">
             {lastMessage}
           </span>

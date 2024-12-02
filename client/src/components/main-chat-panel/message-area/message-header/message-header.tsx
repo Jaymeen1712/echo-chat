@@ -1,8 +1,10 @@
+import { BsThreeDotsVertical } from "react-icons/bs";
+import { IoCallOutline } from "react-icons/io5";
 import { LuSearch } from "react-icons/lu";
 import useMessageHeaderController from "./message-header-controller";
 
 const MessageHeader = () => {
-  const { activeChat } = useMessageHeaderController();
+  const { activeChat, handleCallClick } = useMessageHeaderController();
 
   return (
     <div className="flex items-center justify-between">
@@ -13,8 +15,12 @@ const MessageHeader = () => {
 
       <div className="flex gap-x-6 opacity-50">
         <LuSearch className="cursor-pointer" size={32} />
-        <LuSearch className="cursor-pointer" size={32} />
-        <LuSearch className="cursor-pointer" size={32} />
+        <IoCallOutline
+          className="cursor-pointer"
+          size={32}
+          onClick={handleCallClick}
+        />
+        <BsThreeDotsVertical className="cursor-pointer" size={32} />
       </div>
     </div>
   );
