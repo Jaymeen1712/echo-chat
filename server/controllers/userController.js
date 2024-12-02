@@ -152,47 +152,47 @@ const searchUsers_get = async (req, res) => {
   try {
     const { query = "" } = req.body;
 
-    // const users = await User.aggregate([
-    //   {
-    //     $match: {
-    //       name: { $regex: query, $options: "i" },
-    //     },
-    //   },
-    //   {
-    //     $lookup: {
-    //       from: "conversations",
-    //       let: { userId: "$_id" },
-    //       pipeline: [
-    //         {
-    //           $match: {
-    //             $expr: {
-    //               $in: ["$$userId", "$participants"],
-    //             },
-    //           },
-    //         },
-    //       ],
-    //       as: "userConversations",
-    //     },
-    //   },
-    //   {
-    //     $match: {
-    //       userConversations: { $size: 0 },
-    //     },
-    //   },
-    //   {
-    //     $project: {
-    //       name: 1,
-    //       image: 1,
-    //     },
-    //   },
-    // ]);
+    const users = await User.aggregate([
+      {
+        $match: {
+          name: { $regex: query, $options: "i" },
+        },
+      },
+      {
+        $lookup: {
+          from: "conversations",
+          let: { userId: "$_id" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $in: ["$$userId", "$participants"],
+                },
+              },
+            },
+          ],
+          as: "userConversations",
+        },
+      },
+      {
+        $match: {
+          userConversations: { $size: 0 },
+        },
+      },
+      {
+        $project: {
+          name: 1,
+          image: 1,
+        },
+      },
+    ]);
 
-    const users = await User.find({
-      $or: [
-        { name: { $regex: query, $options: "i" } },
-        // { email: { $regex: query, $options: "i" } },
-      ],
-    }).select(["name", "image"]);
+    // const users = await User.find({
+    //   $or: [
+    //     { name: { $regex: query, $options: "i" } },
+    //     // { email: { $regex: query, $options: "i" } },
+    //   ],
+    // }).select(["name", "image"]);
 
     if (users.length === 0) {
       return res.status(200).json(
