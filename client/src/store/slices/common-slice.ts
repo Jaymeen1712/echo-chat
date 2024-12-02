@@ -116,6 +116,7 @@ export const createCommonSlice: StateCreator<CommonSlice> = (set, get) => ({
         senderId: newSubSidebarChat?.lastMessage?.sender?._id, // Handle cases where lastMessage or sender might be null
         createdAt,
         updatedAt,
+        files: newSubSidebarChat?.lastMessage?.files,
       };
 
       // Check if the conversation already exists in the subSidebarChats

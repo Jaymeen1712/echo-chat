@@ -1,7 +1,7 @@
 import { useGetAllConversationsQuery } from "@/queries";
 import { useSearchUserQuery } from "@/queries/user.queries";
 import { useAppStore } from "@/store";
-import { GetAllConversationsType } from "@/types";
+import { FileType, GetAllConversationsType } from "@/types";
 import { socketClient } from "@/wrapper";
 import { useCallback, useEffect } from "react";
 
@@ -13,6 +13,7 @@ export interface ChatType {
   content?: string;
   createdAt?: string;
   updatedAt?: string;
+  files?: FileType[];
 }
 
 const useChatsSubSideController = () => {
@@ -142,6 +143,7 @@ const useChatsSubSideController = () => {
               senderId: lastMessage?.sender._id,
               createdAt,
               updatedAt,
+              files: lastMessage?.files,
             },
           ];
         } else {
