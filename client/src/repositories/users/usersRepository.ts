@@ -4,6 +4,7 @@ import {
   createUserParam,
   postLoginParam,
   searchUserPostParams,
+  UpdateUserPatchParams,
 } from "./usersRepository.params";
 
 export const createUser = async (data: createUserParam) => {
@@ -39,5 +40,13 @@ export const meGet = async () => {
   return await apiClient({
     method: "get",
     url: API_ROUTES.ME,
+  });
+};
+
+export const updateUserPatch = async (reqData: UpdateUserPatchParams) => {
+  return await apiClient({
+    method: "patch",
+    url: API_ROUTES.UPDATE_USER,
+    data: reqData,
   });
 };

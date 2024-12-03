@@ -8,6 +8,7 @@ const AUTH_API_ROUTES = {
 const USERS_API_ROUTES = {
   ME: `${API_ENDPOINT}/me`,
   SEARCH_USERS: `${API_ENDPOINT}/searchUsers`,
+  UPDATE_USER: `${API_ENDPOINT}/update-user`,
 };
 
 const CONVERSATIONS_API_ROUTES = {

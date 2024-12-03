@@ -172,6 +172,12 @@ const useChatsSubSideController = () => {
     });
   }, [socketClient, currentUserData]);
 
+  useEffect(() => {
+    return () => {
+      setSubSidebarChats([]);
+    };
+  }, [setSubSidebarChats]);
+
   return {
     handleClickNewChat,
     isNewChatOpen,

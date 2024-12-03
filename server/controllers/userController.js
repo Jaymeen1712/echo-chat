@@ -220,9 +220,51 @@ const searchUsers_get = async (req, res) => {
   }
 };
 
+const updateUser_patch = async (req, res) => {
+  try {
+    const userId = req.user?.userId;
+    const updateData = req.body;
+
+    if (!userId) {
+      return res.status(400).json({
+        message: "Invalid user ID.",
+        data: { user: null },
+      });
+    }
+
+    await User.findOneAndUpdate({ _id: userId }, updateData);
+
+    const populatedUser = await User.findById(userId, "name email image");
+
+    if (!populatedUser) {
+      return res.status(404).json(
+        handleGetResponse({
+          message: "No user found.",
+          data: { users: [] },
+        })
+      );
+    }
+
+    return res.status(200).json(
+      handleGetResponse({
+        message: "User data updated successfully.",
+        data: { user: { ...populatedUser.toObject(), ...req.user } },
+      })
+    );
+  } catch (error) {
+    sendErrors({
+      res,
+      error,
+      duplicationMessage: "User already exist",
+      genericMessageKey: "update user",
+    });
+  }
+};
+
 module.exports = {
   createUser,
   loginUser,
   getUser,
   searchUsers_get,
+  updateUser_patch,
 };
