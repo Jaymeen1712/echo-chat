@@ -4,6 +4,7 @@ import { capitalizeWords } from "@/utils";
 import { IoChatboxEllipses } from "react-icons/io5";
 import { MdOutlineKeyboardBackspace } from "react-icons/md";
 import useChatsSubSideController from "./chats-controller";
+import { DEFAULT_SUB_SIDEBAR_WIDTH } from "@/enums";
 
 interface ChatsSubSidebarProps {
   subSidebarKey: SubSidebarKeysType;
@@ -22,7 +23,7 @@ const ChatsSubSidebar: React.FC<ChatsSubSidebarProps> = ({ subSidebarKey }) => {
     <div
       className="flex flex-col gap-y-4"
       style={{
-        width: "440px",
+        width: DEFAULT_SUB_SIDEBAR_WIDTH,
       }}
     >
       {!isNewChatOpen ? (
