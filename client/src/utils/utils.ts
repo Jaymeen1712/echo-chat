@@ -128,3 +128,52 @@ export const convertFileToBase64 = (file: File): Promise<string> => {
     reader.readAsDataURL(file); // Convert file to base64 string
   });
 };
+
+export function convertDateIntoTimeAgoFormat(
+  date: string | Date | undefined | null,
+) {
+  if (!date) {
+    return "";
+  }
+
+  try {
+    const targetDate = typeof date === "string" ? new Date(date) : date;
+    const now = new Date().getTime();
+    const targetTime = targetDate.getTime();
+
+    const seconds = Math.floor((now - targetTime) / 1000);
+
+    if (seconds < 1) {
+      return "a moment ago"; // For 0 seconds
+    }
+
+    if (seconds < 60) {
+      return `${seconds}s`; // Seconds ago
+    }
+
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) {
+      return `${minutes}m`; // Minutes ago
+    }
+
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) {
+      return `${hours}h`; // Hours ago
+    }
+
+    const days = Math.floor(hours / 24);
+    if (days < 30) {
+      return `${days}d`; // Days ago
+    }
+
+    const months = Math.floor(days / 30);
+    if (months < 12) {
+      return months === 1 ? "last month" : `${months}m`; // Months ago
+    }
+
+    const years = Math.floor(months / 12);
+    return years === 1 ? "last year" : `${years}y`; // Years ago
+  } catch (error) {
+    return "";
+  }
+}

@@ -11,6 +11,7 @@ const ChatItem: React.FC<ChatItemProps> = ({ chat, handleChatClick }) => {
     isCurrentChatItemActive,
     isCurrentUserLastMessageOwner,
     lastMessage,
+    lastMessageTimestamp,
   } = useChatItemController({ chat });
 
   const { name, conversationId } = chat;
@@ -36,7 +37,7 @@ const ChatItem: React.FC<ChatItemProps> = ({ chat, handleChatClick }) => {
         </span>
       </div>
       <div>
-        <span className="opacity-50">4m</span>
+        <span className="opacity-50">{lastMessageTimestamp}</span>
       </div>
     </div>
   );
