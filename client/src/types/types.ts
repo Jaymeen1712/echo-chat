@@ -70,3 +70,7 @@ export interface FileType {
   size: number;
   type: string;
 }
+export type ActiveContactInfoType = ActiveChatType;
+export type ActiveContactFileInfoType = {
+  label: string;
+};

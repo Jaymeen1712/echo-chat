@@ -5,6 +5,7 @@ const {
   getUniqueConversationParticipantsKey,
 } = require("../utils/uniqueConversationKey");
 const { handleGetResponse } = require("../utils/utils");
+const Message = require("../models/message");
 
 module.exports.conversation_post = async (req, res) => {
   try {
@@ -190,6 +191,200 @@ module.exports.conversation_delete = async (req, res) => {
       res,
       error,
       genericMessageKey: "delete conversation",
+    });
+  }
+};
+
+module.exports.getFilesCount_post = async (req, res) => {
+  try {
+    const { conversationId } = req.body;
+
+    if (!conversationId) {
+      return res.status(400).json(
+        handleGetResponse({
+          message: "Conversation ID is required.",
+          isError: true,
+        })
+      );
+    }
+
+    const conversation = new ObjectId(conversationId);
+
+    // Build the pipeline
+    const pipeline = [
+      {
+        $match: {
+          conversation,
+        },
+      },
+      { $unwind: "$files" }, // Decompose the files array into individual documents
+      {
+        $facet: {
+          images: [
+            { $match: { "files.type": { $regex: "^image/" } } },
+            { $count: "count" },
+          ],
+          documents: [
+            { $match: { "files.type": { $regex: "^application/" } } },
+            { $count: "count" },
+          ],
+          audio_files: [
+            { $match: { "files.type": { $regex: "^audio/" } } },
+            { $count: "count" },
+          ],
+        },
+      },
+      {
+        $project: {
+          images: { $arrayElemAt: ["$images.count", 0] },
+          documents: { $arrayElemAt: ["$documents.count", 0] },
+          audio_files: { $arrayElemAt: ["$audio_files.count", 0] },
+        },
+      },
+      {
+        $addFields: {
+          images: { $ifNull: ["$images", 0] },
+          documents: { $ifNull: ["$documents", 0] },
+          audio_files: { $ifNull: ["$audio_files", 0] },
+        },
+      },
+    ];
+
+    // Execute the aggregation
+    const result = await Message.aggregate(pipeline);
+
+    // Return the result or an empty object if no files found
+    return res.json(result[0] || { images: 0, documents: 0, audio_files: 0 });
+  } catch (error) {
+    sendErrors({
+      res,
+      error,
+      genericMessageKey: "get files count",
+    });
+  }
+};
+
+module.exports.getAllFiles_post = async (req, res) => {
+  try {
+    const { conversationId, files, limit } = req.body;
+
+    // Validate input
+    if (
+      !conversationId ||
+      !files ||
+      !Array.isArray(files) ||
+      files.length === 0
+    ) {
+      return res.status(400).json(
+        handleGetResponse({
+          message: "Conversation ID and at least one file type are required.",
+          isError: true,
+        })
+      );
+    }
+
+    const fileTypeMapping = {
+      image: "^image/",
+      document: "^application/",
+      audio: "^audio/",
+    };
+
+    // Validate file types
+    const invalidFileTypes = files.filter((file) => !fileTypeMapping[file]);
+    if (invalidFileTypes.length > 0) {
+      return res.status(400).json(
+        handleGetResponse({
+          message: `Invalid file type(s): ${invalidFileTypes.join(
+            ", "
+          )}. Allowed types: image, document, audio.`,
+          isError: true,
+        })
+      );
+    }
+
+    const conversation = new ObjectId(conversationId);
+
+    // Build the $match stage to filter by file types dynamically
+    const fileMatchConditions = files.map((file) => ({
+      "files.type": { $regex: fileTypeMapping[file] },
+    }));
+
+    const pipeline = [
+      {
+        $match: {
+          conversation,
+        },
+      },
+      { $unwind: "$files" }, // Decompose the files array into individual documents
+      {
+        $match: {
+          $or: fileMatchConditions, // Match any of the file types in the array
+        },
+      },
+      {
+        $group: {
+          _id: "$files.type", // Group by file type (assuming files have a 'type' field)
+          files: { $push: { messageId: "$_id", file: "$files" } }, // Collect matching files with messageId
+        },
+      },
+    ];
+
+    // Apply the limit if it's provided
+    if (limit) {
+      const limitNumber = parseInt(limit, 10);
+      if (isNaN(limitNumber) || limitNumber <= 0) {
+        return res.status(400).json(
+          handleGetResponse({
+            message: "Invalid limit value.",
+            isError: true,
+          })
+        );
+      }
+
+      pipeline.push({
+        $project: {
+          _id: 1,
+          files: { $slice: ["$files", limitNumber] }, // Limit the number of files per type
+        },
+      });
+    }
+
+    // Flatten the grouped results back into a single array
+    pipeline.push({
+      $unwind: "$files", // Break down the limited files array back into individual documents
+    });
+
+    pipeline.push({
+      $replaceRoot: {
+        newRoot: "$files", // Replace the root document with the file information
+      },
+    });
+
+    // Run the aggregation pipeline
+    const result = await Message.aggregate(pipeline);
+
+    // Group the result by file type
+    const groupedResult = result.reduce((acc, { file, messageId }) => {
+      const fileType = file.type.split("/")[0]; // Get the file type from the MIME type (image, audio, document)
+      if (!acc[fileType]) {
+        acc[fileType] = [];
+      }
+      acc[fileType].push({ messageId, file });
+      return acc;
+    }, {});
+
+    return res.status(200).json(
+      handleGetResponse({
+        message: "Files retrieved successfully.",
+        data: groupedResult,
+      })
+    );
+  } catch (error) {
+    // Handle errors
+    sendErrors({
+      res,
+      error,
+      genericMessageKey: "get files",
     });
   }
 };

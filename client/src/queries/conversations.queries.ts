@@ -3,8 +3,11 @@ import {
   createConversation,
   deleteConversation,
   getAllConversations,
+  getAllFiles,
+  getFilesCount,
   updateConversation,
 } from "@/repositories/conversations/conversationsRepository";
+import { GetAllFilesParams } from "@/repositories/conversations/conversationsRepository.params";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
 export const useGetAllConversationsQuery = () =>
@@ -13,6 +16,20 @@ export const useGetAllConversationsQuery = () =>
     queryFn: () => getAllConversations(),
     staleTime: 20000,
     enabled: false,
+  });
+
+export const useGetAllFilesCountQuery = (data: { conversationId: string }) =>
+  useQuery({
+    queryKey: [QUERY_KEY.GET_FILES_COUNT],
+    queryFn: () => getFilesCount(data),
+    staleTime: 20000,
+  });
+
+export const useGetAllFilesQuery = (data: GetAllFilesParams) =>
+  useQuery({
+    queryKey: [QUERY_KEY.GET_ALL_FILES],
+    queryFn: () => getAllFiles(data),
+    staleTime: 20000,
   });
 
 export const useCreateConversationMutation = () =>

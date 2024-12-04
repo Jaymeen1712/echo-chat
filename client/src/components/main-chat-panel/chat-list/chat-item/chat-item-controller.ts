@@ -8,7 +8,6 @@ interface ChatItemControllerProps {
 }
 
 const useChatItemController = ({ chat }: ChatItemControllerProps) => {
-  console.log("🚀 ~ useChatItemController ~ chat:", chat);
   const [isCurrentChatItemActive, setIsCurrentChatItemActive] = useState(false);
 
   const { activeChat, currentUserData } = useAppStore();

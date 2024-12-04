@@ -43,6 +43,16 @@ router.delete(
   authenticateToken,
   conversation_controller.conversation_delete
 );
+router.post(
+  "/get-files-count",
+  authenticateToken,
+  conversation_controller.getFilesCount_post
+);
+router.post(
+  "/get-all-files",
+  authenticateToken,
+  conversation_controller.getAllFiles_post
+);
 
 // Message routes
 router.post("/message", authenticateToken, message_controller.message_post);
