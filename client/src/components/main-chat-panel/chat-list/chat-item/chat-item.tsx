@@ -1,4 +1,5 @@
 import { ChatType } from "@/components/sub-sidebar/chats/chats-controller";
+import { handleGetAvatarAlternativeURL } from "@/utils";
 import useChatItemController from "./chat-item-controller";
 
 interface ChatItemProps {
@@ -11,6 +12,7 @@ const ChatItem: React.FC<ChatItemProps> = ({ chat, handleChatClick }) => {
     isCurrentChatItemActive,
     isCurrentUserLastMessageOwner,
     lastMessage,
+    lastMessageTimestamp,
   } = useChatItemController({ chat });
 
   const { name, conversationId } = chat;
@@ -21,22 +23,27 @@ const ChatItem: React.FC<ChatItemProps> = ({ chat, handleChatClick }) => {
       onClick={() => handleChatClick(chat)}
     >
       <div className="avatar">
-        <img src="/user-avatar-1.png" alt="Avatar" />
+        <img
+          src={chat?.image || handleGetAvatarAlternativeURL(name)}
+          alt="avatarImg"
+          className="h-[40px] w-[40px] object-cover"
+        />
       </div>
       <div className="flex-1">
         <h4 className="text-base font-semibold leading-7">{name}</h4>
         <span className="flex gap-x-2 leading-7">
-          <span className="text-purple-primary">
-            {conversationId &&
-              (isCurrentUserLastMessageOwner ? "You:" : `${name}:`)}
-          </span>
+          {conversationId && (
+            <span className="text-purple-primary">
+              {isCurrentUserLastMessageOwner ? "You:" : `${name}:`}
+            </span>
+          )}
           <span className="line-clamp-1 flex-1 text-ellipsis break-all opacity-50">
             {lastMessage}
           </span>
         </span>
       </div>
       <div>
-        <span className="opacity-50">4m</span>
+        <span className="opacity-50">{lastMessageTimestamp}</span>
       </div>
     </div>
   );

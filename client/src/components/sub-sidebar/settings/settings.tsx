@@ -6,8 +6,9 @@ const SettingsSubSidebar = () => {
       style={{
         width: DEFAULT_SUB_SIDEBAR_WIDTH,
       }}
+      className="flex flex-col px-2"
     >
-      SettingsSubSidebar
+      <h1 className="text-xl">Settings</h1>
     </div>
   );
 };

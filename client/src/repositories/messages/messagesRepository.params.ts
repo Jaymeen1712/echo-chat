@@ -11,3 +11,7 @@ export interface updateConversationPatchParams {
 export interface deleteConversationDeleteParams {
   conversationId: string;
 }
+export interface getAllFilesParams  {
+  conversationId: string;
+  file: "image" | "audio" | "document";
+}

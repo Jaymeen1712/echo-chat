@@ -1,9 +1,13 @@
 import { useAppStore } from "@/store";
 
 const useMessageHeaderController = () => {
-  const { activeChat } = useAppStore();
+  const { activeChat, setIsContactInfoContainerOpen } = useAppStore();
 
-  return { activeChat };
+  const handleContactTitleClick = () => {
+    setIsContactInfoContainerOpen(true);
+  };
+
+  return { activeChat, handleContactTitleClick };
 };
 
 export default useMessageHeaderController;

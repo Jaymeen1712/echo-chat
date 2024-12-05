@@ -1,3 +1,4 @@
+import { handleGetAvatarAlternativeURL } from "@/utils";
 import moment from "moment";
 import { IoMdDownload } from "react-icons/io";
 import { toast } from "react-toastify";
@@ -32,8 +33,11 @@ const MessageItem: React.FC<MessageItemProps> = ({ type, message }) => {
       <div
         className={`flex w-[70%] items-end gap-x-4 ${type !== "sender" && "!flex-row-reverse"}`}
       >
-        <div className="avatar min-h-fit min-w-fit">
-          <img src="/user-avatar-1.png" alt="Avatar" />
+        <div className="avatar">
+          <img
+            src={sender?.image || handleGetAvatarAlternativeURL(sender.name)}
+            alt="Avatar"
+          />
         </div>
 
         <div
@@ -129,7 +133,7 @@ const MessageItem: React.FC<MessageItemProps> = ({ type, message }) => {
             )}
 
             <span
-              className={`font-medium ${type !== "sender" && "!text-white-primary"}`}
+              className={`font-medium ${type !== "sender" && "!text-white-primary"} break-all`}
             >
               {message?.content}
             </span>
@@ -141,7 +145,7 @@ const MessageItem: React.FC<MessageItemProps> = ({ type, message }) => {
             <div className="h-4 w-4 flex-1 rounded-full"></div>
 
             <div className="flex gap-x-4 opacity-50">
-              <span>23</span>
+              {/* <span>23</span> */}
               <span>{moment(createdAt).format("hh:mm A")}</span>
             </div>
           </div>

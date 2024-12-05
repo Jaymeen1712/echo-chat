@@ -2,6 +2,8 @@ import { SingleMessageWithTypeType } from "@/components/main-chat-panel/message-
 import { ChatType } from "@/components/sub-sidebar/chats/chats-controller";
 import {
   ActiveChatType,
+  ActiveContactFileInfoType,
+  ActiveContactInfoType,
   GroupedMessageByDateType,
   MeResponseType,
   SingleConversationType,
@@ -31,6 +33,15 @@ export interface CommonSlice {
   subSidebarChats: ChatType[];
   setSubSidebarChats: (data: ChatType[]) => void;
   patchSubSidebarChats: (data: SingleConversationType) => void;
+  isContactInfoContainerOpen: boolean;
+  setIsContactInfoContainerOpen: (data: boolean) => void;
+  toggleContactInfoContainerState: () => void;
+  isContactFileContainerOpen: boolean;
+  setIsContactFileContainerOpen: (data: boolean) => void;
+  activeContactFileInfo: ActiveContactFileInfoType | undefined;
+  setActiveContactFileInfo: (
+    data: ActiveContactFileInfoType | undefined,
+  ) => void;
 }
 
 export const createCommonSlice: StateCreator<CommonSlice> = (set, get) => ({
@@ -140,5 +151,24 @@ export const createCommonSlice: StateCreator<CommonSlice> = (set, get) => ({
       });
 
       return { subSidebarChats: updatedSubSidebarChats };
+    }),
+  isContactInfoContainerOpen: false,
+  setIsContactInfoContainerOpen: (isContactInfoContainerOpen) =>
+    set({
+      isContactInfoContainerOpen,
+    }),
+  toggleContactInfoContainerState: () =>
+    set({
+      isContactInfoContainerOpen: !get().isContactInfoContainerOpen,
+    }),
+  isContactFileContainerOpen: false,
+  setIsContactFileContainerOpen: (isContactFileContainerOpen) =>
+    set({
+      isContactFileContainerOpen,
+    }),
+  activeContactFileInfo: undefined,
+  setActiveContactFileInfo: (activeContactFileInfo) =>
+    set({
+      activeContactFileInfo,
     }),
 });

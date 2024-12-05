@@ -2,9 +2,10 @@ import { API_ROUTES } from "@/constants";
 import apiClient from "@/repositories/apiClient";
 import {
   createConversationPostParams,
-  updateConversationPatchParams,
   deleteConversationDeleteParams,
+  updateConversationPatchParams,
 } from "../messages/messagesRepository.params";
+import { GetAllFilesParams } from "./conversationsRepository.params";
 
 export const createConversation = async (
   data: createConversationPostParams,
@@ -39,5 +40,19 @@ export const deleteConversation = async (
       ":conversationId",
       data.conversationId,
     ),
+  });
+};
+export const getFilesCount = async (data: { conversationId: string }) => {
+  return await apiClient({
+    method: "post",
+    url: API_ROUTES.GET_FILES_COUNT,
+    data,
+  });
+};
+export const getAllFiles = async (data: GetAllFilesParams) => {
+  return await apiClient({
+    method: "post",
+    url: API_ROUTES.GET_ALL_FILES,
+    data,
   });
 };

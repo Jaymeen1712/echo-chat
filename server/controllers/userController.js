@@ -151,22 +151,29 @@ const getUser = async (req, res) => {
 const searchUsers_get = async (req, res) => {
   try {
     const { query = "" } = req.body;
+    const user = req.user;
 
     const users = await User.aggregate([
+      // Match users whose name matches the query
       {
         $match: {
           name: { $regex: query, $options: "i" },
         },
       },
+      // Lookup conversations to check relationships
       {
         $lookup: {
           from: "conversations",
-          let: { userId: "$_id" },
+          let: { userId: "$_id", requestingUserId: user._id },
           pipeline: [
             {
               $match: {
                 $expr: {
-                  $in: ["$$userId", "$participants"],
+                  // Check if the user ID is a participant in the conversation
+                  $and: [
+                    { $in: ["$$userId", "$participants"] },
+                    { $in: ["$$requestingUserId", "$participants"] },
+                  ],
                 },
               },
             },
@@ -174,11 +181,13 @@ const searchUsers_get = async (req, res) => {
           as: "userConversations",
         },
       },
+      // Filter out users who have conversations with the requesting user
       {
         $match: {
           userConversations: { $size: 0 },
         },
       },
+      // Select the desired fields
       {
         $project: {
           name: 1,
