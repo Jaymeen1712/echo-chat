@@ -41,7 +41,7 @@ const MessageItem: React.FC<MessageItemProps> = ({ type, message }) => {
         </div>
 
         <div
-          className={`flex cursor-pointer flex-col gap-y-3 rounded-2xl bg-purple-primary/10 px-5 py-3 text-sm ${type !== "sender" && "!bg-purple-primary"}`}
+          className={`flex flex-col gap-y-3 rounded-2xl bg-purple-primary/10 px-5 py-3 text-sm ${type !== "sender" && "!bg-purple-primary"}`}
         >
           {type === "sender" && (
             <h4 className={`font-semibold text-purple-dark-1`}>{name}</h4>

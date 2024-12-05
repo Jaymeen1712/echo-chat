@@ -217,7 +217,7 @@ const useMessageInputController = () => {
         });
         patchActiveMessages({
           ...data,
-          type: data.sender === currentUserData.userId ? "receiver" : "sender",
+          type: data.sender._id === currentUserData.userId ? "receiver" : "sender",
         });
         setIsNewChatOpen(false);
         setFileAttachments(new Map());

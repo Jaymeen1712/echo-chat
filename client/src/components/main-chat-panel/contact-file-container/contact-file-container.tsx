@@ -22,7 +22,7 @@ const ContactFileContainer = () => {
         <div className="grid grid-cols-2 gap-x-3 gap-y-6 pr-3">
           {fileItems.map((item, index) => (
             <div
-              className="group relative col-span-1 rounded-xl bg-white-primary"
+              className="group relative col-span-1 flex items-center rounded-xl bg-white-primary"
               key={index}
             >
               {item.file.type.startsWith("image/") ? (
