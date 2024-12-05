@@ -124,3 +124,25 @@ module.exports.message_delete = async (req, res) => {
     });
   }
 };
+
+module.exports.handleUpdateIsSeen = async (conversationId) => {
+  try {
+    if (!conversationId) {
+      return;
+    }
+
+    const conversationObjectId = new ObjectId(conversationId);
+
+    await Message.updateMany(
+      {
+        conversation: conversationObjectId,
+        isSeen: false,
+      },
+      {
+        $set: { isSeen: true },
+      }
+    );
+  } catch (error) {
+    console.error(error);
+  }
+};

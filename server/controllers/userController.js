@@ -1,8 +1,11 @@
 const bcrypt = require("bcrypt");
 const User = require("../models/user");
+const { ObjectId } = require("mongodb");
 const { handleGetResponse } = require("../utils/utils");
 const jwt = require("jsonwebtoken");
 const { sendErrors } = require("../utils/getError");
+const Message = require("../models/message");
+const Conversation = require("../models/conversation");
 
 const createUser = async (req, res) => {
   try {
@@ -270,10 +273,67 @@ const updateUser_patch = async (req, res) => {
   }
 };
 
+const handleDisconnectUser = async (userId) => {
+  try {
+    if (!userId) {
+      return;
+    }
+
+    await User.findOneAndUpdate(
+      { _id: userId },
+      {
+        lastActive: Date.now(),
+        isActive: false,
+      }
+    );
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const handleConnectUser = async (userId) => {
+  try {
+    if (!userId) {
+      return;
+    }
+
+    await User.findOneAndUpdate(
+      { _id: userId },
+      {
+        isActive: true,
+      }
+    );
+
+    const userObjectId = new ObjectId(userId);
+
+    // Change isDelivered to true on user connection
+    // Step 1: Fetch conversation IDs where the user is a participant
+    const conversations = await Conversation.aggregate([
+      { $match: { participants: userObjectId } },
+      { $project: { _id: 1 } },
+    ]);
+
+    const conversationIds = conversations.map((conv) => conv._id);
+
+    // Step 2: Update messages in those conversations
+    await Message.updateMany(
+      {
+        conversation: { $in: conversationIds },
+        isDelivered: false,
+      },
+      { $set: { isDelivered: true } }
+    );
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 module.exports = {
   createUser,
   loginUser,
   getUser,
   searchUsers_get,
   updateUser_patch,
+  handleDisconnectUser,
+  handleConnectUser,
 };

@@ -5,6 +5,11 @@ const express = require("express");
 const mongoose = require("mongoose");
 const router = require("../routes/routes");
 const { Server } = require("socket.io");
+const {
+  handleDisconnectUser,
+  handleConnectUser,
+} = require("../controllers/userController");
+const message_controller = require("../controllers/messageController");
 
 const port = process.env.PORT || 4000;
 
@@ -49,20 +54,25 @@ io.on("connection", (socket) => {
   socket.on("register", (userId) => {
     if (userId) {
       clients[userId] = socket.id;
+      handleConnectUser(userId);
     }
 
     // Notify all clients about the updated user list
-    // io.emit("users", clients);
+    io.emit("online-users", Object.keys(clients));
+    console.log("🚀 ~ socket.on register ~ clients:", clients);
   });
 
+  // Handle disconnection
   socket.on("disconnect", () => {
+    console.log(`User disconnected: ${socket.id}`);
     const disconnectedUserId = Object.keys(clients).find(
       (key) => clients[key] === socket.id
     );
-    if (disconnectedUserId) delete clients[disconnectedUserId];
 
-    // Notify all clients about the updated user list
-    // io.emit("users", clients);
+    if (disconnectedUserId) {
+      handleDisconnectUser(disconnectedUserId);
+      delete clients[disconnectedUserId];
+    }
   });
 
   // Conversations
@@ -123,10 +133,9 @@ io.on("connection", (socket) => {
     }
   });
 
-  // Handle disconnection
-  socket.on("disconnect", () => {
-    // console.log(`User disconnected: ${socket.id}`);
-    delete clients[socket.id];
+  // Live messages
+  socket.on("update-seen-messages", async ({ conversationId }) => {
+    message_controller.handleUpdateIsSeen(conversationId);
   });
 });
 
