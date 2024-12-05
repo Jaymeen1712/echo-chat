@@ -5,6 +5,8 @@ const USER_QUERY_KEY = {
 
 const CONVERSATION_QUERY_KEY = {
   GET_ALL_CONVERSATIONS: "getAllConversations",
+  GET_FILES_COUNT: "getAllFilesCount",
+  GET_ALL_FILES: "getAllFiles",
 };
 
 const MESSAGE_QUERY_KEY = {

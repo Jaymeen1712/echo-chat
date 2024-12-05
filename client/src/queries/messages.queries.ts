@@ -1,5 +1,5 @@
 import { QUERY_KEY } from "@/constants/query.constants";
-import { getAllMessagesGetParams } from "@/repositories/conversations/messagesRepository.params";
+import { getAllMessagesGetParams } from "@/repositories/conversations/conversationsRepository.params";
 import {
   createMessage,
   deleteMessage,

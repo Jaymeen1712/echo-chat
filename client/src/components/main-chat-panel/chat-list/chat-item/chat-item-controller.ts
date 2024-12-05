@@ -1,5 +1,6 @@
 import { ChatType } from "@/components/sub-sidebar/chats/chats-controller";
 import { useAppStore } from "@/store";
+import { convertDateIntoTimeAgoFormat } from "@/utils";
 import { useEffect, useMemo, useState } from "react";
 
 interface ChatItemControllerProps {
@@ -18,7 +19,7 @@ const useChatItemController = ({ chat }: ChatItemControllerProps) => {
     // Otherwise, handle the files
     const files = chat?.files || [];
 
-    if(!files.length) return "No messages yet"
+    if (!files.length) return "No messages yet";
 
     if (files.length === 1) {
       const file = files[0];
@@ -29,6 +30,11 @@ const useChatItemController = ({ chat }: ChatItemControllerProps) => {
     // If there are multiple files, return "Files"
     return "Files";
   }, [chat]);
+
+  const lastMessageTimestamp = useMemo(
+    () => convertDateIntoTimeAgoFormat(chat.updatedAt),
+    [chat.updatedAt],
+  );
 
   const isCurrentUserLastMessageOwner = useMemo(
     () => chat.senderId === currentUserData?.userId,
@@ -47,7 +53,12 @@ const useChatItemController = ({ chat }: ChatItemControllerProps) => {
     }
   }, [activeChat]);
 
-  return { isCurrentChatItemActive, isCurrentUserLastMessageOwner, lastMessage };
+  return {
+    isCurrentChatItemActive,
+    isCurrentUserLastMessageOwner,
+    lastMessage,
+    lastMessageTimestamp,
+  };
 };
 
 export default useChatItemController;

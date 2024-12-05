@@ -4,7 +4,7 @@ import {
   createMessagePostParams,
   deleteMessageDeleteParams,
   getAllMessagesGetParams,
-} from "../conversations/messagesRepository.params";
+} from "../conversations/conversationsRepository.params";
 
 export const createMessage = async (data: createMessagePostParams) => {
   return await apiClient({

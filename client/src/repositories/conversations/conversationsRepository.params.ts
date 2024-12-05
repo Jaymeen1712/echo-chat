@@ -12,3 +12,8 @@ export interface getAllMessagesGetParams {
 export interface deleteMessageDeleteParams {
   messageId: string;
 }
+export interface GetAllFilesParams {
+  conversationId: string;
+  files: ("image" | "audio" | "document")[];
+  limit?: number;
+}
