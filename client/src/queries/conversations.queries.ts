@@ -18,19 +18,28 @@ export const useGetAllConversationsQuery = () =>
     enabled: false,
   });
 
-export const useGetAllFilesCountQuery = (data: { conversationId: string }) =>
+export const useGetAllFilesCountQuery = (
+  data: { conversationId: string },
+  enabled = true,
+) =>
   useQuery({
-    queryKey: [QUERY_KEY.GET_FILES_COUNT],
+    queryKey: [QUERY_KEY.GET_FILES_COUNT, data],
     queryFn: () => getFilesCount(data),
     staleTime: 20000,
+    enabled,
   });
 
-export const useGetAllFilesQuery = (data: GetAllFilesParams) =>
-  useQuery({
-    queryKey: [QUERY_KEY.GET_ALL_FILES],
+export const useGetAllFilesQuery = (
+  data: GetAllFilesParams,
+  enabled = true,
+) => {
+  return useQuery({
+    queryKey: [QUERY_KEY.GET_ALL_FILES, data],
     queryFn: () => getAllFiles(data),
     staleTime: 20000,
+    enabled,
   });
+};
 
 export const useCreateConversationMutation = () =>
   useMutation(createConversation);

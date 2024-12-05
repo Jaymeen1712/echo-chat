@@ -9,6 +9,9 @@ export interface createMessagePostParams {
 export interface getAllMessagesGetParams {
   conversationId: string;
 }
+export interface deleteMessageDeleteParams {
+  messageId: string;
+}
 export interface GetAllFilesParams {
   conversationId: string;
   files: ("image" | "audio" | "document")[];

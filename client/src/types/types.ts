@@ -72,5 +72,6 @@ export interface FileType {
 }
 export type ActiveContactInfoType = ActiveChatType;
 export type ActiveContactFileInfoType = {
-  label: string;
+  uuid: "image" | "audio" | "document";
+  conversationId: string;
 };

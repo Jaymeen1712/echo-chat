@@ -3,6 +3,7 @@ import { USER_ACCESS_KEY } from "@/enums";
 import { GroupedMessageByDateType } from "@/types";
 import Cookies from "js-cookie";
 import moment from "moment";
+import { toast } from "react-toastify";
 
 export const isAuthenticated = (): boolean => {
   const accessToken = Cookies.get(USER_ACCESS_KEY.TOKEN);
@@ -177,3 +178,16 @@ export function convertDateIntoTimeAgoFormat(
     return "";
   }
 }
+
+export const handleDownload = (url: string, name: string) => {
+  try {
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = name;
+    anchor.click();
+    anchor.remove();
+  } catch (error) {
+    console.error("Error downloading the file:", error);
+    toast.error("Failed to download the file. Please try again.");
+  }
+};

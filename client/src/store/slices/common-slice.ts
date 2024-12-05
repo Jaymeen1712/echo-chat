@@ -36,8 +36,6 @@ export interface CommonSlice {
   isContactInfoContainerOpen: boolean;
   setIsContactInfoContainerOpen: (data: boolean) => void;
   toggleContactInfoContainerState: () => void;
-  activeContactInfo: ActiveContactInfoType | undefined;
-  setActiveContactInfo: (data: ActiveContactInfoType | undefined) => void;
   isContactFileContainerOpen: boolean;
   setIsContactFileContainerOpen: (data: boolean) => void;
   activeContactFileInfo: ActiveContactFileInfoType | undefined;
@@ -163,12 +161,7 @@ export const createCommonSlice: StateCreator<CommonSlice> = (set, get) => ({
     set({
       isContactInfoContainerOpen: !get().isContactInfoContainerOpen,
     }),
-  activeContactInfo: undefined,
-  setActiveContactInfo: (activeContactInfo) =>
-    set({
-      activeContactInfo,
-    }),
-  isContactFileContainerOpen: true,
+  isContactFileContainerOpen: false,
   setIsContactFileContainerOpen: (isContactFileContainerOpen) =>
     set({
       isContactFileContainerOpen,
