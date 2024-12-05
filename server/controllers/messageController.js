@@ -25,10 +25,15 @@ module.exports.message_post = async (req, res) => {
 
     await message.save();
 
+    const populatedMessage = await Message.findById(message._id).populate(
+      "sender",
+      ["name", "image"]
+    );
+
     return res.status(200).json(
       handleGetResponse({
         message: `Message created successfully.`,
-        data: message,
+        data: populatedMessage,
       })
     );
   } catch (error) {

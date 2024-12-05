@@ -5,9 +5,14 @@ import { useCallback, useState } from "react";
 import { toast } from "react-toastify";
 
 const useMessageHeaderController = () => {
-  const { activeChat, currentUserData } = useAppStore();
+  const { activeChat, currentUserData, setIsContactInfoContainerOpen } =
+    useAppStore();
 
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
+
+  const handleContactTitleClick = () => {
+    setIsContactInfoContainerOpen(true);
+  };
 
   const createOffer = useCallback(
     async ({
@@ -89,7 +94,7 @@ const useMessageHeaderController = () => {
   //   };
   // }, [localStream, peerConnection]);
 
-  return { activeChat, handleCallClick };
+  return { activeChat, handleCallClick, handleContactTitleClick };
 };
 
 export default useMessageHeaderController;

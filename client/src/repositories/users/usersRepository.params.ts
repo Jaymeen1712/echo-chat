@@ -12,3 +12,7 @@ export interface postLoginParam {
 export interface searchUserPostParams {
   query: string;
 }
+export interface UpdateUserPatchParams {
+  name?: string;
+  image?: string;
+}

@@ -3,6 +3,7 @@ import { USER_ACCESS_KEY } from "@/enums";
 import { GroupedMessageByDateType } from "@/types";
 import Cookies from "js-cookie";
 import moment from "moment";
+import { toast } from "react-toastify";
 
 export const isAuthenticated = (): boolean => {
   const accessToken = Cookies.get(USER_ACCESS_KEY.TOKEN);
@@ -127,4 +128,72 @@ export const convertFileToBase64 = (file: File): Promise<string> => {
 
     reader.readAsDataURL(file); // Convert file to base64 string
   });
+};
+
+export function convertDateIntoTimeAgoFormat(
+  date: string | Date | undefined | null,
+) {
+  if (!date) {
+    return "";
+  }
+
+  try {
+    const targetDate = typeof date === "string" ? new Date(date) : date;
+    const now = new Date().getTime();
+    const targetTime = targetDate.getTime();
+
+    const seconds = Math.floor((now - targetTime) / 1000);
+
+    if (seconds < 1) {
+      return "a moment ago"; // For 0 seconds
+    }
+
+    if (seconds < 60) {
+      return `${seconds}s`; // Seconds ago
+    }
+
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) {
+      return `${minutes}m`; // Minutes ago
+    }
+
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) {
+      return `${hours}h`; // Hours ago
+    }
+
+    const days = Math.floor(hours / 24);
+    if (days < 30) {
+      return `${days}d`; // Days ago
+    }
+
+    const months = Math.floor(days / 30);
+    if (months < 12) {
+      return months === 1 ? "last month" : `${months}m`; // Months ago
+    }
+
+    const years = Math.floor(months / 12);
+    return years === 1 ? "last year" : `${years}y`; // Years ago
+  } catch (error) {
+    return "";
+  }
+}
+
+export const handleDownload = (url: string, name: string) => {
+  try {
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = name;
+    anchor.click();
+    anchor.remove();
+  } catch (error) {
+    console.error("Error downloading the file:", error);
+    toast.error("Failed to download the file. Please try again.");
+  }
+};
+
+export const handleGetAvatarAlternativeURL = (name: string | undefined) => {
+  if (!name) return;
+  
+  return `https://ui-avatars.com/api/?name=${name.split(" ").join("+")}&background=7678ed&color=f9fafc`;
 };

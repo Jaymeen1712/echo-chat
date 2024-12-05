@@ -4,6 +4,7 @@ const {
   loginUser,
   getUser,
   searchUsers_get,
+  updateUser_patch,
 } = require("../controllers/userController");
 const authenticateToken = require("../middleware/authMiddleware");
 const conversation_controller = require("../controllers/conversationController");
@@ -19,6 +20,7 @@ router.post("/login", loginUser);
 // User routes
 router.get("/me", authenticateToken, getUser);
 router.post("/searchUsers", authenticateToken, searchUsers_get);
+router.patch("/update-user", authenticateToken, updateUser_patch);
 
 // Conversation routes
 router.post(
@@ -40,6 +42,16 @@ router.delete(
   "/conversation/:conversationId",
   authenticateToken,
   conversation_controller.conversation_delete
+);
+router.post(
+  "/get-files-count",
+  authenticateToken,
+  conversation_controller.getFilesCount_post
+);
+router.post(
+  "/get-all-files",
+  authenticateToken,
+  conversation_controller.getAllFiles_post
 );
 
 // Message routes

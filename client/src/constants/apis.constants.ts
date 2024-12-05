@@ -8,6 +8,7 @@ const AUTH_API_ROUTES = {
 const USERS_API_ROUTES = {
   ME: `${API_ENDPOINT}/me`,
   SEARCH_USERS: `${API_ENDPOINT}/searchUsers`,
+  UPDATE_USER: `${API_ENDPOINT}/update-user`,
 };
 
 const CONVERSATIONS_API_ROUTES = {
@@ -15,6 +16,8 @@ const CONVERSATIONS_API_ROUTES = {
   GET_ALL_CONVERSATIONS: `${API_ENDPOINT}/conversations`,
   UPDATE_CONVERSATION: `${API_ENDPOINT}/conversation`,
   DELETE_CONVERSATION: `${API_ENDPOINT}/conversation/:conversationId`,
+  GET_FILES_COUNT: `${API_ENDPOINT}/get-files-count`,
+  GET_ALL_FILES: `${API_ENDPOINT}/get-all-files`,
 };
 
 const MESSAGES_API_ROUTES = {

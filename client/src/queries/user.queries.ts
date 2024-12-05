@@ -4,6 +4,7 @@ import {
   meGet,
   postLogin,
   searchUserPost,
+  updateUserPatch,
 } from "@/repositories/users/usersRepository";
 import { searchUserPostParams } from "@/repositories/users/usersRepository.params";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -26,3 +27,5 @@ export const useMeQuery = () =>
 export const useCreateUserMutation = () => useMutation(createUser);
 
 export const usePostLoginMutation = () => useMutation(postLogin);
+
+export const useUpdateUserMutation = () => useMutation(updateUserPatch);

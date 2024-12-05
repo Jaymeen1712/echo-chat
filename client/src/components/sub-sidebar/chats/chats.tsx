@@ -1,7 +1,7 @@
 import { ChatHeader, ChatList } from "@/components/main-chat-panel";
+import { DEFAULT_SUB_SIDEBAR_WIDTH } from "@/enums";
 import { SubSidebarKeysType } from "@/types";
 import { capitalizeWords } from "@/utils";
-import { IoChatboxEllipses } from "react-icons/io5";
 import { MdOutlineKeyboardBackspace } from "react-icons/md";
 import useChatsSubSideController from "./chats-controller";
 
@@ -22,16 +22,17 @@ const ChatsSubSidebar: React.FC<ChatsSubSidebarProps> = ({ subSidebarKey }) => {
     <div
       className="flex flex-col gap-y-4"
       style={{
-        width: "440px",
+        width: DEFAULT_SUB_SIDEBAR_WIDTH,
       }}
     >
       {!isNewChatOpen ? (
         <>
           <div className="flex items-center justify-between px-2">
             <h1 className="text-xl">{capitalizeWords(subSidebarKey)}</h1>
-            <IoChatboxEllipses
-              size={24}
-              className="cursor-pointer"
+            <img
+              src="/chat-plus-icon.png"
+              className="h-6 w-6 cursor-pointer"
+              alt=""
               onClick={handleClickNewChat}
             />
           </div>

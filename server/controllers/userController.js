@@ -151,22 +151,29 @@ const getUser = async (req, res) => {
 const searchUsers_get = async (req, res) => {
   try {
     const { query = "" } = req.body;
+    const user = req.user;
 
     const users = await User.aggregate([
+      // Match users whose name matches the query
       {
         $match: {
           name: { $regex: query, $options: "i" },
         },
       },
+      // Lookup conversations to check relationships
       {
         $lookup: {
           from: "conversations",
-          let: { userId: "$_id" },
+          let: { userId: "$_id", requestingUserId: user._id },
           pipeline: [
             {
               $match: {
                 $expr: {
-                  $in: ["$$userId", "$participants"],
+                  // Check if the user ID is a participant in the conversation
+                  $and: [
+                    { $in: ["$$userId", "$participants"] },
+                    { $in: ["$$requestingUserId", "$participants"] },
+                  ],
                 },
               },
             },
@@ -174,11 +181,13 @@ const searchUsers_get = async (req, res) => {
           as: "userConversations",
         },
       },
+      // Filter out users who have conversations with the requesting user
       {
         $match: {
           userConversations: { $size: 0 },
         },
       },
+      // Select the desired fields
       {
         $project: {
           name: 1,
@@ -220,9 +229,51 @@ const searchUsers_get = async (req, res) => {
   }
 };
 
+const updateUser_patch = async (req, res) => {
+  try {
+    const userId = req.user?.userId;
+    const updateData = req.body;
+
+    if (!userId) {
+      return res.status(400).json({
+        message: "Invalid user ID.",
+        data: { user: null },
+      });
+    }
+
+    await User.findOneAndUpdate({ _id: userId }, updateData);
+
+    const populatedUser = await User.findById(userId, "name email image");
+
+    if (!populatedUser) {
+      return res.status(404).json(
+        handleGetResponse({
+          message: "No user found.",
+          data: { users: [] },
+        })
+      );
+    }
+
+    return res.status(200).json(
+      handleGetResponse({
+        message: "User data updated successfully.",
+        data: { user: { ...populatedUser.toObject(), ...req.user } },
+      })
+    );
+  } catch (error) {
+    sendErrors({
+      res,
+      error,
+      duplicationMessage: "User already exist",
+      genericMessageKey: "update user",
+    });
+  }
+};
+
 module.exports = {
   createUser,
   loginUser,
   getUser,
   searchUsers_get,
+  updateUser_patch,
 };
