@@ -217,7 +217,8 @@ const useMessageInputController = () => {
         });
         patchActiveMessages({
           ...data,
-          type: data.sender._id === currentUserData.userId ? "receiver" : "sender",
+          type:
+            data.sender._id === currentUserData.userId ? "receiver" : "sender",
         });
         setIsNewChatOpen(false);
         setFileAttachments(new Map());
@@ -278,6 +279,7 @@ const useMessageInputController = () => {
   useEffect(() => {
     if (updateConversationData) {
       const updatedConversation = updateConversationData.data.data;
+
       patchSubSidebarChats(updatedConversation);
 
       // Handle socket

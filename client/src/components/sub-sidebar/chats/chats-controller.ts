@@ -14,6 +14,8 @@ export interface ChatType {
   createdAt?: string;
   updatedAt?: string;
   files?: FileType[];
+  isActive: boolean;
+  lastActive: Date;
 }
 
 const useChatsSubSideController = () => {
@@ -25,6 +27,8 @@ const useChatsSubSideController = () => {
     patchSubSidebarChats,
     isNewChatOpen,
     toggleNewChat,
+    subSidebarChats,
+    activeChat,
   } = useAppStore();
 
   const {
@@ -59,11 +63,14 @@ const useChatsSubSideController = () => {
   }, [debouncedSearchQuery, isNewChatOpen]);
 
   const handleChatClick = (chat: ChatType) => {
-    const { conversationId, senderId, image, name } = chat;
+    const { conversationId, senderId, image, name, isActive, lastActive } =
+      chat;
 
     const defaultActiveChat = {
       image,
       name,
+      isActive,
+      lastActive,
     };
 
     if (conversationId) {
@@ -131,13 +138,21 @@ const useChatsSubSideController = () => {
           const otherParticipant = participants.filter(
             (participant) => participant._id !== currentUserData.userId,
           );
-          const { name, image, _id: senderId } = otherParticipant[0];
+          const {
+            name,
+            image,
+            _id: senderId,
+            isActive,
+            lastActive,
+          } = otherParticipant[0];
 
           chats = [
             ...chats,
             {
               image,
               name,
+              isActive,
+              lastActive,
               content: lastMessage?.content,
               conversationId: _id,
               senderId,
@@ -177,6 +192,41 @@ const useChatsSubSideController = () => {
       setSubSidebarChats([]);
     };
   }, [setSubSidebarChats]);
+
+  useEffect(() => {
+    if (!activeChat) return;
+
+    const { conversationId: activeChatConversationId } = activeChat;
+    const chat = subSidebarChats.find(
+      (chat) => chat.conversationId === activeChatConversationId,
+    );
+
+    if (!chat) return;
+
+    const { conversationId, senderId, image, name, isActive, lastActive } =
+      chat;
+
+    const defaultActiveChat = {
+      image,
+      name,
+      isActive,
+      lastActive,
+      userId: senderId,
+    };
+
+    if (conversationId) {
+      setActiveChat({
+        ...defaultActiveChat,
+        conversationId,
+        isChatTemp: false,
+      });
+    } else {
+      setActiveChat({
+        ...defaultActiveChat,
+        isChatTemp: true,
+      });
+    }
+  }, [subSidebarChats]);
 
   return {
     handleClickNewChat,

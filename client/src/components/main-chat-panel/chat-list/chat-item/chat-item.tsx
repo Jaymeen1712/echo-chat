@@ -15,7 +15,7 @@ const ChatItem: React.FC<ChatItemProps> = ({ chat, handleChatClick }) => {
     lastMessageTimestamp,
   } = useChatItemController({ chat });
 
-  const { name, conversationId } = chat;
+  const { name, conversationId, isActive } = chat;
 
   return (
     <div
@@ -30,7 +30,12 @@ const ChatItem: React.FC<ChatItemProps> = ({ chat, handleChatClick }) => {
         />
       </div>
       <div className="flex-1">
-        <h4 className="text-base font-semibold leading-7">{name}</h4>
+        <div className="flex items-center gap-x-2">
+          {isActive && (
+            <div className="animate-blink h-2 w-2 rounded-full bg-red-danger" />
+          )}
+          <h4 className="text-base font-semibold leading-7">{name}</h4>
+        </div>
         <span className="flex gap-x-2 leading-7">
           {conversationId && (
             <span className="text-purple-primary">

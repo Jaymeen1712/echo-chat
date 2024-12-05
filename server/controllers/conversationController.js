@@ -56,7 +56,7 @@ module.exports.conversation_get = async (req, res) => {
         updatedAt: true,
       }
     )
-      .populate("participants", ["name", "image"])
+      .populate("participants", ["name", "image", "isActive", "lastActive"])
       .populate("lastMessage", ["content"])
       .populate({
         path: "lastMessage",
@@ -119,7 +119,7 @@ module.exports.conversation_patch = async (req, res) => {
         new: true,
       }
     )
-      .populate("participants", ["name", "image"])
+      .populate("participants", ["name", "image", "isActive", "lastActive"])
       .populate("lastMessage", ["content"])
       .populate({
         path: "lastMessage",

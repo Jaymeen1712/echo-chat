@@ -10,6 +10,7 @@ const {
   handleConnectUser,
 } = require("../controllers/userController");
 const message_controller = require("../controllers/messageController");
+const { clients } = require("../utils/utils");
 
 const port = process.env.PORT || 4000;
 
@@ -38,8 +39,6 @@ app.use(Cors());
 server.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
-
-const clients = {};
 
 const io = new Server(server, {
   cors: {
@@ -73,6 +72,8 @@ io.on("connection", (socket) => {
       handleDisconnectUser(disconnectedUserId);
       delete clients[disconnectedUserId];
     }
+    io.emit("online-users", Object.keys(clients));
+    console.log("🚀 ~ socket.on disconnect ~ clients:", clients);
   });
 
   // Conversations
@@ -134,8 +135,14 @@ io.on("connection", (socket) => {
   });
 
   // Live messages
-  socket.on("update-seen-messages", async ({ conversationId }) => {
-    message_controller.handleUpdateIsSeen(conversationId);
+  socket.on("update-seen-messages", async ({ conversationId, senderId }) => {
+    if (!conversationId || !senderId) return;
+    const messages = await message_controller.handleUpdateIsSeen(
+      conversationId,
+      senderId
+    );
+
+    io.emit("updated-seen-messages", { messages, conversationId });
   });
 });
 

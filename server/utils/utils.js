@@ -10,7 +10,9 @@ const handleGetResponse = ({ isError = false, message, data }) => {
         isError: false,
       };
 };
+const clients = {};
 
 module.exports = {
   handleGetResponse,
+  clients,
 };

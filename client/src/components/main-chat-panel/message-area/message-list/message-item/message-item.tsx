@@ -1,6 +1,7 @@
 import { handleGetAvatarAlternativeURL } from "@/utils";
 import moment from "moment";
 import { IoMdDownload } from "react-icons/io";
+import { IoCheckmark, IoCheckmarkDone } from "react-icons/io5";
 import { toast } from "react-toastify";
 import { SingleMessageWithTypeType } from "../message-list-controller";
 
@@ -10,7 +11,7 @@ interface MessageItemProps {
 }
 
 const MessageItem: React.FC<MessageItemProps> = ({ type, message }) => {
-  const { sender, createdAt } = message;
+  const { sender, createdAt, isDelivered, isSeen } = message;
   const { name } = sender;
 
   const handleDownload = (url: string, name: string) => {
@@ -144,9 +145,29 @@ const MessageItem: React.FC<MessageItemProps> = ({ type, message }) => {
           >
             <div className="h-4 w-4 flex-1 rounded-full"></div>
 
-            <div className="flex gap-x-4 opacity-50">
-              {/* <span>23</span> */}
-              <span>{moment(createdAt).format("hh:mm A")}</span>
+            <div className="flex items-center gap-x-2">
+              <span className="opacity-50">
+                {moment(createdAt).format("hh:mm A")}
+              </span>
+              {type !== "sender" && (
+                <>
+                  {!isSeen && !isDelivered ? (
+                    <IoCheckmark size={18} className="opacity-50" />
+                  ) : (
+                    <>
+                      {isSeen ? (
+                        <IoCheckmarkDone
+                          size={18}
+                          className="text-red-600"
+                          // className="text-purple-dark-1"
+                        />
+                      ) : (
+                        <IoCheckmarkDone size={18} className="opacity-50" />
+                      )}
+                    </>
+                  )}
+                </>
+              )}
             </div>
           </div>
         </div>

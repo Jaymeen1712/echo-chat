@@ -274,6 +274,7 @@ const updateUser_patch = async (req, res) => {
 };
 
 const handleDisconnectUser = async (userId) => {
+  console.log("🚀 ~ handleDisconnectUser ~ userId:", userId);
   try {
     if (!userId) {
       return;
@@ -282,7 +283,7 @@ const handleDisconnectUser = async (userId) => {
     await User.findOneAndUpdate(
       { _id: userId },
       {
-        lastActive: Date.now(),
+        lastActive: new Date(),
         isActive: false,
       }
     );
@@ -320,6 +321,7 @@ const handleConnectUser = async (userId) => {
       {
         conversation: { $in: conversationIds },
         isDelivered: false,
+        sender: { $ne: userObjectId },
       },
       { $set: { isDelivered: true } }
     );

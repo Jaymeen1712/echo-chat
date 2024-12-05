@@ -4,7 +4,12 @@ import { LuSearch } from "react-icons/lu";
 import useMessageHeaderController from "./message-header-controller";
 
 const MessageHeader = () => {
-  const { activeChat, handleCallClick, handleContactTitleClick } = useMessageHeaderController();
+  const {
+    activeChat,
+    handleCallClick,
+    handleContactTitleClick,
+    messageSubHeader,
+  } = useMessageHeaderController();
 
   return (
     <div className="flex items-center justify-between">
@@ -15,7 +20,7 @@ const MessageHeader = () => {
         >
           {activeChat?.name}
         </h1>
-        {/* <span className="text-sm opacity-50">23 members, 10 online</span> */}
+        {messageSubHeader}
       </div>
 
       <div className="flex gap-x-6 opacity-50">

@@ -22,6 +22,9 @@ const Wrapper: React.FC<WrapperProps> = ({ children }) => {
     setReceivedCandidate,
     receivedCandidate,
     activeChat,
+    setOnlineUsers,
+    onlineUsers,
+    patchSubSidebarChatsIsActiveStates,
   } = useAppStore();
 
   useEffect(() => {
@@ -30,6 +33,16 @@ const Wrapper: React.FC<WrapperProps> = ({ children }) => {
       socketClient.emit("register", currentUserId);
     }
   }, [socketClient, currentUserData]);
+
+  useEffect(() => {
+    socketClient.on("online-users", (onlineUsers) => {
+      setOnlineUsers(onlineUsers);
+    });
+  }, [socketClient]);
+
+  useEffect(() => {
+    patchSubSidebarChatsIsActiveStates(onlineUsers);
+  }, [onlineUsers]);
 
   useEffect(() => {
     if (!currentUserData) return;

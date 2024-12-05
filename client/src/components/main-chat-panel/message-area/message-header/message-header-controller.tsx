@@ -1,7 +1,8 @@
 import { useAppStore } from "@/store";
 import { CallingSenderReceiverDetails } from "@/types";
+import { convertDateIntoTimeAgoFormat } from "@/utils";
 import { peerConnection, socketClient } from "@/wrapper";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 
 const useMessageHeaderController = () => {
@@ -9,6 +10,18 @@ const useMessageHeaderController = () => {
     useAppStore();
 
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
+
+  const messageSubHeader = useMemo(() => {
+    if (activeChat?.isActive) {
+      return <span>Online</span>;
+    } else {
+      return (
+        <span>
+          Last online {convertDateIntoTimeAgoFormat(activeChat?.lastActive)} ago
+        </span>
+      );
+    }
+  }, [activeChat?.isActive, activeChat?.lastActive]);
 
   const handleContactTitleClick = () => {
     setIsContactInfoContainerOpen(true);
@@ -94,7 +107,12 @@ const useMessageHeaderController = () => {
   //   };
   // }, [localStream, peerConnection]);
 
-  return { activeChat, handleCallClick, handleContactTitleClick };
+  return {
+    activeChat,
+    handleCallClick,
+    handleContactTitleClick,
+    messageSubHeader,
+  };
 };
 
 export default useMessageHeaderController;

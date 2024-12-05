@@ -17,8 +17,6 @@ export interface CommonSlice {
   setCurrentUserData: (data: MeResponseType["user"] | undefined) => void;
   activeSubSidebarKey: SubSidebarKeysType;
   setActiveSubSidebarKey: (data: SubSidebarKeysType) => void;
-  // currentUserData: MeResponseType["user"] | undefined;
-  // setCurrentUserData: (data: MeResponseType["user"] | undefined) => void;
 
   // Main page state types
   isNewChatOpen: boolean;
@@ -32,9 +30,11 @@ export interface CommonSlice {
   activeMessages: GroupedMessageByDateType[];
   setActiveMessages: (data: GroupedMessageByDateType[]) => void;
   patchActiveMessages: (data: SingleMessageWithTypeType) => void;
+  patchActiveMessagesIsDeliveredField: () => void;
   subSidebarChats: ChatType[];
   setSubSidebarChats: (data: ChatType[]) => void;
   patchSubSidebarChats: (data: SingleConversationType) => void;
+  patchSubSidebarChatsIsActiveStates: (data: string[]) => void;
 
   // Calling state types
   receivedOffer: ReceivedOfferType | undefined;
@@ -50,6 +50,10 @@ export interface CommonSlice {
   setActiveContactFileInfo: (
     data: ActiveContactFileInfoType | undefined,
   ) => void;
+
+  // Live user socket types
+  onlineUsers: string[];
+  setOnlineUsers: (data: string[]) => void;
 }
 
 export const createCommonSlice: StateCreator<CommonSlice> = (set, get) => ({
@@ -105,6 +109,24 @@ export const createCommonSlice: StateCreator<CommonSlice> = (set, get) => ({
         activeMessages: groupedMessageByDate,
       };
     }),
+  patchActiveMessagesIsDeliveredField: () =>
+    set((state) => {
+      const updatedActiveMessages = state.activeMessages.map(
+        ({ messages, ...rest }) => {
+          const updatedMessages = messages.map((message) => {
+            return {
+              ...message,
+              isDelivered: true,
+            };
+          });
+          return {
+            ...rest,
+            messages: updatedMessages,
+          };
+        },
+      );
+      return { activeMessages: updatedActiveMessages };
+    }),
   subSidebarChats: [],
   setSubSidebarChats: (subSidebarChats: ChatType[]) =>
     set({
@@ -124,7 +146,13 @@ export const createCommonSlice: StateCreator<CommonSlice> = (set, get) => ({
       const otherParticipant = participants.find(
         (participant) => participant._id !== currentUserId,
       );
-      const { name = "", image = "" } = otherParticipant || {};
+      const {
+        name = "",
+        image = "",
+        isActive = false,
+        lastActive = new Date(),
+        _id: userId,
+      } = otherParticipant || {};
 
       // Construct the new chat object
       const subSidebarChat = {
@@ -132,10 +160,12 @@ export const createCommonSlice: StateCreator<CommonSlice> = (set, get) => ({
         name,
         content: newSubSidebarChat?.lastMessage?.content || "", // Default to an empty string if no content
         conversationId: _id,
-        senderId: newSubSidebarChat?.lastMessage?.sender?._id, // Handle cases where lastMessage or sender might be null
+        senderId: userId, // Handle cases where lastMessage or sender might be null
         createdAt,
         updatedAt,
         files: newSubSidebarChat?.lastMessage?.files,
+        isActive,
+        lastActive,
       };
 
       // Check if the conversation already exists in the subSidebarChats
@@ -159,6 +189,29 @@ export const createCommonSlice: StateCreator<CommonSlice> = (set, get) => ({
       });
 
       return { subSidebarChats: updatedSubSidebarChats };
+    }),
+  patchSubSidebarChatsIsActiveStates: (onlineUsers) =>
+    set((state) => {
+      const subSidebarChats = [...state.subSidebarChats].map((chat) => {
+        const { senderId } = chat;
+
+        if (!senderId) return chat;
+
+        if (onlineUsers.includes(senderId)) {
+          return {
+            ...chat,
+            isActive: true,
+            lastActive: new Date(),
+          };
+        } else {
+          return {
+            ...chat,
+            isActive: false,
+          };
+        }
+      });
+
+      return { subSidebarChats };
     }),
 
   // Calling states
@@ -190,5 +243,12 @@ export const createCommonSlice: StateCreator<CommonSlice> = (set, get) => ({
   setActiveContactFileInfo: (activeContactFileInfo) =>
     set({
       activeContactFileInfo,
+    }),
+
+  // Live users socket states
+  onlineUsers: [],
+  setOnlineUsers: (onlineUsers) =>
+    set({
+      onlineUsers,
     }),
 });

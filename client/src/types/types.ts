@@ -28,6 +28,8 @@ export interface ActiveChatType {
   userId?: string;
   conversationId?: string;
   isChatTemp: boolean;
+  isActive: boolean;
+  lastActive: Date;
 }
 export interface SingleConversationType {
   _id: string;
@@ -43,6 +45,8 @@ export interface ParticipantsEntity {
   _id: string;
   name: string;
   image?: string;
+  isActive: boolean;
+  lastActive: Date;
 }
 export interface SingleMessageType {
   _id: string;
@@ -54,6 +58,8 @@ export interface SingleMessageType {
   updatedAt: string;
   files?: FileType[];
   __v: number;
+  isSeen: boolean;
+  isDelivered: boolean;
 }
 export interface Sender {
   _id: string;
