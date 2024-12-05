@@ -22,7 +22,7 @@ const ContactFileContainer = () => {
         <div className="grid grid-cols-2 gap-x-3 gap-y-6 pr-3">
           {fileItems.map((item, index) => (
             <div
-              className="group relative col-span-1 h-[150px] w-[180px] rounded-xl bg-white-primary"
+              className="group relative col-span-1 flex items-center rounded-xl bg-white-primary"
               key={index}
             >
               {item.file.type.startsWith("image/") ? (
@@ -30,11 +30,11 @@ const ContactFileContainer = () => {
                 <img
                   src={item.file.data}
                   alt={`Image ${index}`}
-                  className="h-[150px] w-[180px] rounded-xl bg-white-primary object-cover transition duration-300 group-hover:brightness-50"
+                  className="rounded-xl bg-white-primary object-cover transition duration-300 group-hover:brightness-50"
                 />
               ) : (
                 // Render Document
-                <div className="flex h-[150px] w-[180px] flex-col items-center justify-center gap-y-4 rounded-xl bg-white-primary p-3 text-black-primary transition duration-300 group-hover:brightness-50">
+                <div className="flex flex-col items-center justify-center gap-y-4 rounded-xl bg-white-primary p-3 text-black-primary transition duration-300 group-hover:brightness-50">
                   {/* PDF Icon */}
                   {item.file.type.includes("pdf") && (
                     <img

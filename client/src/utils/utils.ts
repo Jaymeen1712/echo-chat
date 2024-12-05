@@ -191,3 +191,9 @@ export const handleDownload = (url: string, name: string) => {
     toast.error("Failed to download the file. Please try again.");
   }
 };
+
+export const handleGetAvatarAlternativeURL = (name: string | undefined) => {
+  if (!name) return;
+  
+  return `https://ui-avatars.com/api/?name=${name.split(" ").join("+")}&background=7678ed&color=f9fafc`;
+};

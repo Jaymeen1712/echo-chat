@@ -1,4 +1,4 @@
-import { handleDownload } from "@/utils";
+import { handleDownload, handleGetAvatarAlternativeURL } from "@/utils";
 import {
   Accordion,
   AccordionItem,
@@ -33,9 +33,12 @@ const ContactInfoContainer = () => {
       <div className="my-6 flex items-center gap-x-6">
         <div className="flex justify-center">
           <img
-            src={activeChat?.image}
-            alt=""
-            className="h-[80px] w-[80px] rounded-full bg-black-primary object-cover transition group-hover:brightness-50"
+            src={
+              activeChat?.image ||
+              handleGetAvatarAlternativeURL(activeChat?.name)
+            }
+            alt="avatarImg"
+            className="h-[80px] w-[80px] rounded-full border-none bg-black-primary object-cover outline-none transition group-hover:brightness-50"
           />
         </div>
 

@@ -25,4 +25,4 @@ export const USER_ACCESS_KEY = {
   TOKEN: "accessToken",
 };
 
-export const DEFAULT_SUB_SIDEBAR_WIDTH = 440;
+export const DEFAULT_SUB_SIDEBAR_WIDTH = 400;

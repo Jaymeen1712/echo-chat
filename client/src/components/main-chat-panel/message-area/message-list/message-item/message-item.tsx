@@ -1,3 +1,4 @@
+import { handleGetAvatarAlternativeURL } from "@/utils";
 import moment from "moment";
 import { IoMdDownload } from "react-icons/io";
 import { toast } from "react-toastify";
@@ -32,12 +33,15 @@ const MessageItem: React.FC<MessageItemProps> = ({ type, message }) => {
       <div
         className={`flex w-[70%] items-end gap-x-4 ${type !== "sender" && "!flex-row-reverse"}`}
       >
-        <div className="avatar min-h-fit min-w-fit">
-          <img src="/user-avatar-1.png" alt="Avatar" />
+        <div className="avatar">
+          <img
+            src={sender?.image || handleGetAvatarAlternativeURL(sender.name)}
+            alt="Avatar"
+          />
         </div>
 
         <div
-          className={`flex cursor-pointer flex-col gap-y-3 rounded-2xl bg-purple-primary/10 px-5 py-3 text-sm ${type !== "sender" && "!bg-purple-primary"}`}
+          className={`flex flex-col gap-y-3 rounded-2xl bg-purple-primary/10 px-5 py-3 text-sm ${type !== "sender" && "!bg-purple-primary"}`}
         >
           {type === "sender" && (
             <h4 className={`font-semibold text-purple-dark-1`}>{name}</h4>

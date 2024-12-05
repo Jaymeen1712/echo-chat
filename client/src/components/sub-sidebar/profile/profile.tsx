@@ -1,4 +1,5 @@
 import { DEFAULT_SUB_SIDEBAR_WIDTH } from "@/enums";
+import { handleGetAvatarAlternativeURL } from "@/utils";
 import { FaCamera } from "react-icons/fa";
 import useProfileSubSidebarController from "./profile-controller";
 
@@ -24,8 +25,11 @@ const ProfileSubSidebar = () => {
             }}
           >
             <img
-              src={currentUserData?.image}
-              alt=""
+              src={
+                currentUserData?.image ||
+                handleGetAvatarAlternativeURL(currentUserData?.name)
+              }
+              alt="avatarImg"
               className="z-20 h-full w-full rounded-full bg-black-primary object-cover transition group-hover:brightness-50"
             />
             <div className="absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 group-hover:block">

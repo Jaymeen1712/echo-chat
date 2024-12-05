@@ -22,7 +22,7 @@ const MainPage = () => {
         </div>
       </div>
       {isContactInfoContainerOpen || isContactFileContainerOpen ? (
-        <div className="flex w-[416px] flex-col gap-y-3">
+        <div className="flex w-[380px] flex-col gap-y-3">
           {isContactInfoContainerOpen ? (
             <div className="flex-1 rounded-3xl bg-white-primary p-6">
               <div className="relative h-full w-full">

@@ -58,6 +58,7 @@ export interface SingleMessageType {
 export interface Sender {
   _id: string;
   name: string;
+  image?: string;
 }
 export interface GroupedMessageByDateType {
   date: string;
