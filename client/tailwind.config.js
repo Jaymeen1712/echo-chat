@@ -19,6 +19,7 @@ export default {
         "white-primary": "#f9fafc",
         "purple-primary": "#7678ed",
         "purple-dark-1": "#232C6A",
+        "contrast-color": "#34B7F1"
       },
       fontFamily: {
         tinos: ['"Tinos"', "serif"],
