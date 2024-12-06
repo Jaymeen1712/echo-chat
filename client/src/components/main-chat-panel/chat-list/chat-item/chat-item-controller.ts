@@ -1,6 +1,7 @@
 import { ChatType } from "@/components/sub-sidebar/chats/chats-controller";
 import { useAppStore } from "@/store";
 import { convertDateIntoTimeAgoFormat } from "@/utils";
+import { socketClient } from "@/wrapper";
 import { useEffect, useMemo, useState } from "react";
 
 interface ChatItemControllerProps {
@@ -9,6 +10,7 @@ interface ChatItemControllerProps {
 
 const useChatItemController = ({ chat }: ChatItemControllerProps) => {
   const [isCurrentChatItemActive, setIsCurrentChatItemActive] = useState(false);
+  const [isSenderTyping, setIsSenderTyping] = useState(false);
 
   const { activeChat, currentUserData } = useAppStore();
 
@@ -53,11 +55,26 @@ const useChatItemController = ({ chat }: ChatItemControllerProps) => {
     }
   }, [activeChat]);
 
+  useEffect(() => {
+    if (!chat.conversationId) return;
+    socketClient.on("receive-true-typing", ({ conversationId }) => {
+      if (conversationId === chat.conversationId) {
+        setIsSenderTyping(true);
+      }
+    });
+    socketClient.on("receive-false-typing", ({ conversationId }) => {
+      if (conversationId === chat.conversationId) {
+        setIsSenderTyping(false);
+      }
+    });
+  }, [socketClient, chat.conversationId]);
+
   return {
     isCurrentChatItemActive,
     isCurrentUserLastMessageOwner,
     lastMessage,
     lastMessageTimestamp,
+    isSenderTyping,
   };
 };
 

@@ -2,7 +2,7 @@ import { useAppStore } from "@/store";
 import { GetAllMessagesType } from "@/types";
 import { handleGroupMessagesByDate } from "@/utils";
 import { peerConnection, socketClient } from "@/wrapper";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
 const useMessageAreaController = () => {
@@ -15,6 +15,8 @@ const useMessageAreaController = () => {
     currentUserData,
     setActiveMessages,
   } = useAppStore();
+
+  const [isSenderTyping, setIsSenderTyping] = useState(false);
 
   const createAnswer = useCallback(
     async ({
@@ -101,7 +103,27 @@ const useMessageAreaController = () => {
     });
   }, [socketClient, activeChat, currentUserData]);
 
-  return { activeChat, receivedOffer, handleDeclineCall, handleAcceptCall };
+  useEffect(() => {
+    if (!activeChat?.conversationId) return;
+    socketClient.on("receive-true-typing", ({ conversationId }) => {
+      if (conversationId === activeChat.conversationId) {
+        setIsSenderTyping(true);
+      }
+    });
+    socketClient.on("receive-false-typing", ({ conversationId }) => {
+      if (conversationId === activeChat.conversationId) {
+        setIsSenderTyping(false);
+      }
+    });
+  }, [socketClient, activeChat?.conversationId]);
+
+  return {
+    activeChat,
+    receivedOffer,
+    handleDeclineCall,
+    handleAcceptCall,
+    isSenderTyping,
+  };
 };
 
 export default useMessageAreaController;

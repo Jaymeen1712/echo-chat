@@ -5,8 +5,13 @@ import MessageInput from "./message-input";
 import MessageList from "./message-list";
 
 const MessageArea = () => {
-  const { activeChat, receivedOffer, handleDeclineCall, handleAcceptCall } =
-    useMessageAreaController();
+  const {
+    activeChat,
+    receivedOffer,
+    handleDeclineCall,
+    handleAcceptCall,
+    isSenderTyping,
+  } = useMessageAreaController();
 
   return (
     <div className="flex h-full flex-col px-4">
@@ -45,6 +50,18 @@ const MessageArea = () => {
             <>
               <MessageHeader />
               <MessageList />
+              {isSenderTyping && (
+                <div className="container">
+                  <div className="flex items-center gap-x-1 pb-6 text-purple-dark-1">
+                    <span>Typing</span>
+                    <span className="flex items-center gap-0.5">
+                      <span className="dot-animation bg-purple-dark-1"></span>
+                      <span className="dot-animation bg-purple-dark-1"></span>
+                      <span className="dot-animation bg-purple-dark-1"></span>
+                    </span>
+                  </div>
+                </div>
+              )}
               <MessageInput />
             </>
           ) : (

@@ -144,6 +144,24 @@ io.on("connection", (socket) => {
 
     io.emit("updated-seen-messages", { messages, conversationId });
   });
+  socket.on("send-true-typing", async ({ conversationId, targetUserId }) => {
+    if (!conversationId || !targetUserId) return;
+
+    const targetUserSocketId = clients[targetUserId];
+
+    io.to(targetUserSocketId).emit("receive-true-typing", {
+      conversationId,
+    });
+  });
+  socket.on("send-false-typing", async ({ conversationId, targetUserId }) => {
+    if (!conversationId || !targetUserId) return;
+
+    const targetUserSocketId = clients[targetUserId];
+
+    io.to(targetUserSocketId).emit("receive-false-typing", {
+      conversationId,
+    });
+  });
 });
 
 app.use("/chat-service", router);

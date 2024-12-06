@@ -12,7 +12,7 @@ import {
 import { convertFileToBase64 } from "@/utils";
 import { socketClient } from "@/wrapper";
 import imageCompression from "browser-image-compression";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "react-toastify";
 
 const useMessageInputController = () => {
@@ -67,12 +67,28 @@ const useMessageInputController = () => {
     });
   };
 
-  const handleOnMessageInputChange: React.ChangeEventHandler<
-    HTMLInputElement
-  > = (e) => {
-    const message = e.target.value;
-    setMessage(message);
-  };
+  const handleOnMessageInputChange: React.ChangeEventHandler<HTMLInputElement> =
+    useCallback(
+      (e) => {
+        const message = e.target.value;
+        setMessage(message);
+
+        if (!activeChat?.conversationId || !activeChat?.userId) return;
+
+        socketClient.emit("send-true-typing", {
+          conversationId: activeChat?.conversationId,
+          targetUserId: activeChat?.userId,
+        });
+
+        if (!message.length) {
+          socketClient.emit("send-false-typing", {
+            conversationId: activeChat?.conversationId,
+            targetUserId: activeChat?.userId,
+          });
+        }
+      },
+      [socketClient, activeChat?.conversationId, activeChat?.userId],
+    );
 
   const handleCreateMessage = (createdConversationId?: string) => {
     if (!activeChat || !currentUserData) return;
@@ -236,6 +252,11 @@ const useMessageInputController = () => {
             },
             type: "sender",
           },
+        });
+
+        socketClient.emit("send-false-typing", {
+          conversationId: activeChat?.conversationId,
+          targetUserId: activeChat?.userId,
         });
       }
     }
