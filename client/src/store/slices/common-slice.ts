@@ -35,6 +35,7 @@ export interface CommonSlice {
   setSubSidebarChats: (data: ChatType[]) => void;
   patchSubSidebarChats: (data: SingleConversationType) => void;
   patchSubSidebarChatsIsActiveStates: (data: string[]) => void;
+  findAndUpdateSubSidebarChatUnreadMessagesFieldToZero: (data: string) => void;
 
   // Calling state types
   receivedOffer: ReceivedOfferType | undefined;
@@ -139,7 +140,8 @@ export const createCommonSlice: StateCreator<CommonSlice> = (set, get) => ({
     }),
   patchSubSidebarChats: (newSubSidebarChat) =>
     set((state) => {
-      const { participants, _id, createdAt, updatedAt } = newSubSidebarChat;
+      const { participants, _id, createdAt, updatedAt, unreadMessagesCount } =
+        newSubSidebarChat;
       const currentUserId = state.currentUserData?.userId;
 
       // Find the participant who is not the current user
@@ -166,6 +168,7 @@ export const createCommonSlice: StateCreator<CommonSlice> = (set, get) => ({
         files: newSubSidebarChat?.lastMessage?.files,
         isActive,
         lastActive,
+        unreadMessagesCount,
       };
 
       // Check if the conversation already exists in the subSidebarChats
@@ -209,6 +212,27 @@ export const createCommonSlice: StateCreator<CommonSlice> = (set, get) => ({
             isActive: false,
           };
         }
+      });
+
+      return { subSidebarChats };
+    }),
+  findAndUpdateSubSidebarChatUnreadMessagesFieldToZero: (
+    updateConversationId,
+  ) =>
+    set((state) => {
+      const subSidebarChats = [...state.subSidebarChats].map((chat) => {
+        const { conversationId } = chat;
+
+        if (!conversationId) return chat;
+
+        if (updateConversationId === conversationId) {
+          return {
+            ...chat,
+            unreadMessagesCount: 0,
+          };
+        }
+
+        return chat;
       });
 
       return { subSidebarChats };

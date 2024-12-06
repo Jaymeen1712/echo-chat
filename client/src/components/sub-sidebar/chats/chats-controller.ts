@@ -16,6 +16,7 @@ export interface ChatType {
   files?: FileType[];
   isActive: boolean;
   lastActive: Date;
+  unreadMessagesCount: number;
 }
 
 const useChatsSubSideController = () => {
@@ -29,6 +30,7 @@ const useChatsSubSideController = () => {
     toggleNewChat,
     subSidebarChats,
     activeChat,
+    findAndUpdateSubSidebarChatUnreadMessagesFieldToZero,
   } = useAppStore();
 
   const {
@@ -80,6 +82,7 @@ const useChatsSubSideController = () => {
         isChatTemp: false,
         userId: senderId,
       });
+      findAndUpdateSubSidebarChatUnreadMessagesFieldToZero(conversationId);
     } else {
       setActiveChat({
         ...defaultActiveChat,
@@ -132,8 +135,14 @@ const useChatsSubSideController = () => {
 
       for (const conversation of conversations) {
         if (!conversation.isGroup) {
-          const { participants, _id, lastMessage, createdAt, updatedAt } =
-            conversation;
+          const {
+            participants,
+            _id,
+            lastMessage,
+            createdAt,
+            updatedAt,
+            unreadMessagesCount,
+          } = conversation;
 
           const otherParticipant = participants.filter(
             (participant) => participant._id !== currentUserData.userId,
@@ -159,6 +168,7 @@ const useChatsSubSideController = () => {
               createdAt,
               updatedAt,
               files: lastMessage?.files,
+              unreadMessagesCount,
             },
           ];
         } else {

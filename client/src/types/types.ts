@@ -39,6 +39,7 @@ export interface SingleConversationType {
   isGroup: boolean;
   createdAt: string;
   updatedAt: string;
+  unreadMessagesCount: number;
   __v: number;
 }
 export interface ParticipantsEntity {

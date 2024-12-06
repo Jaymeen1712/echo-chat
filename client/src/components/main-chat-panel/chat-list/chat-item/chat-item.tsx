@@ -15,7 +15,7 @@ const ChatItem: React.FC<ChatItemProps> = ({ chat, handleChatClick }) => {
     lastMessageTimestamp,
   } = useChatItemController({ chat });
 
-  const { name, conversationId, isActive } = chat;
+  const { name, conversationId, isActive, unreadMessagesCount } = chat;
 
   return (
     <div
@@ -32,7 +32,7 @@ const ChatItem: React.FC<ChatItemProps> = ({ chat, handleChatClick }) => {
       <div className="flex-1">
         <div className="flex items-center gap-x-2">
           {isActive && (
-            <div className="animate-blink h-2 w-2 rounded-full bg-contrast-color" />
+            <div className="animate-blink h-2 w-2 rounded-full bg-red-danger" />
           )}
           <h4 className="text-base font-semibold leading-7">{name}</h4>
         </div>
@@ -47,8 +47,13 @@ const ChatItem: React.FC<ChatItemProps> = ({ chat, handleChatClick }) => {
           </span>
         </span>
       </div>
-      <div>
+      <div className="flex flex-col items-center justify-between gap-y-2">
         <span className="opacity-50">{lastMessageTimestamp}</span>
+        {unreadMessagesCount > 0 && (
+          <span className="flex h-[20px] w-[20px] items-center justify-center rounded-full bg-red-danger text-xs text-white-primary">
+            {unreadMessagesCount}
+          </span>
+        )}
       </div>
     </div>
   );
