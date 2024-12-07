@@ -22,7 +22,7 @@ export default {
         "contrast-color": "#34B7F1"
       },
       fontFamily: {
-        tinos: ['"Tinos"', "serif"],
+        noto: ['"Noto Serif Display"', "serif"],
       },
     },
   },
