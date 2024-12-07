@@ -156,26 +156,31 @@ const searchUsers_get = async (req, res) => {
     const { query = "" } = req.body;
     const user = req.user;
 
+    const userObjectId = new ObjectId(user.userId);
+
     const users = await User.aggregate([
       // Match users whose name matches the query
       {
         $match: {
           name: { $regex: query, $options: "i" },
+          _id: { $ne: userObjectId }, // Exclude the requesting user
         },
       },
-      // Lookup conversations to check relationships
+      // Lookup conversations to check if the user has a conversation with the requesting user
       {
         $lookup: {
           from: "conversations",
-          let: { userId: "$_id", requestingUserId: user._id },
+          let: {
+            userId: "$_id",
+            requestingUserId: userObjectId,
+          },
           pipeline: [
             {
               $match: {
                 $expr: {
-                  // Check if the user ID is a participant in the conversation
                   $and: [
-                    { $in: ["$$userId", "$participants"] },
-                    { $in: ["$$requestingUserId", "$participants"] },
+                    { $in: ["$$userId", "$participants"] }, // User is in participants
+                    { $in: ["$$requestingUserId", "$participants"] }, // Requesting user is in participants
                   ],
                 },
               },
@@ -184,13 +189,13 @@ const searchUsers_get = async (req, res) => {
           as: "userConversations",
         },
       },
-      // Filter out users who have conversations with the requesting user
+      // Filter out users who already have conversations with the requesting user
       {
         $match: {
-          userConversations: { $size: 0 },
+          userConversations: { $size: 0 }, // Only keep users with no conversations
         },
       },
-      // Select the desired fields
+      // Select only necessary fields
       {
         $project: {
           name: 1,
