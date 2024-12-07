@@ -25,6 +25,7 @@ const useMessageInputController = () => {
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
 
   const attachContainerRef = useRef<HTMLDivElement | null>(null);
+  const textInputRef = useRef<HTMLInputElement | null>(null);
 
   const {
     activeChat,
@@ -311,6 +312,10 @@ const useMessageInputController = () => {
     }
   }, [updateConversationData]);
 
+  useEffect(() => {
+    textInputRef.current && textInputRef.current.focus();
+  }, []);
+
   return {
     message,
     handleOnMessageInputChange,
@@ -325,6 +330,7 @@ const useMessageInputController = () => {
     audioUrl,
     setAudioUrl,
     setAudioBlob,
+    textInputRef,
   };
 };
 

@@ -279,7 +279,6 @@ const updateUser_patch = async (req, res) => {
 };
 
 const handleDisconnectUser = async (userId) => {
-  console.log("🚀 ~ handleDisconnectUser ~ userId:", userId);
   try {
     if (!userId) {
       return;

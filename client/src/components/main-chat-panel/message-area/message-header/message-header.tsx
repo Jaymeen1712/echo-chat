@@ -1,6 +1,6 @@
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { IoCallOutline } from "react-icons/io5";
-import { LuSearch } from "react-icons/lu";
+import { MdDelete } from "react-icons/md";
 import useMessageHeaderController from "./message-header-controller";
 
 const MessageHeader = () => {
@@ -9,10 +9,14 @@ const MessageHeader = () => {
     handleCallClick,
     handleContactTitleClick,
     messageSubHeader,
+    isConversationActionContainerOpen,
+    handleActionButtonClick,
+    conversationActionContainerRef,
+    handleDeleteConversation,
   } = useMessageHeaderController();
 
   return (
-    <div className="flex items-center justify-between">
+    <div className="relative flex items-center justify-between">
       <div className="flex flex-col gap-y-1">
         <h1
           className="cursor-pointer text-3xl font-medium"
@@ -24,14 +28,36 @@ const MessageHeader = () => {
       </div>
 
       <div className="flex gap-x-6 opacity-50">
-        <LuSearch className="cursor-pointer" size={32} />
+        {/* <LuSearch className="cursor-pointer" size={32} /> */}
         <IoCallOutline
           className="cursor-pointer"
           size={32}
-          onClick={handleCallClick}
+          // onClick={handleCallClick}
         />
-        <BsThreeDotsVertical className="cursor-pointer" size={32} />
+        <BsThreeDotsVertical
+          className="cursor-pointer"
+          size={32}
+          onClick={handleActionButtonClick}
+        />
       </div>
+
+      {/* Conversation container */}
+      {isConversationActionContainerOpen && (
+        <div
+          className="box-shadow-container absolute right-0 top-0 z-30 -translate-x-2 translate-y-[60px] rounded-xl bg-white-primary"
+          ref={conversationActionContainerRef}
+        >
+          <div className="flex flex-col rounded-xl bg-purple-primary/10 p-2">
+            <div
+              onClick={handleDeleteConversation}
+              className="flex cursor-pointer items-center gap-x-2 rounded-lg p-2 pr-3 text-red-600 hover:bg-purple-primary/20"
+            >
+              <MdDelete size={22} />
+              <span>Delete chat</span>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

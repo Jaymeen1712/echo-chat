@@ -36,6 +36,7 @@ export interface CommonSlice {
   patchSubSidebarChats: (data: SingleConversationType) => void;
   patchSubSidebarChatsIsActiveStates: (data: string[]) => void;
   findAndUpdateSubSidebarChatUnreadMessagesFieldToZero: (data: string) => void;
+  deleteSubSidebarChat: (data: string) => void;
 
   // Calling state types
   receivedOffer: ReceivedOfferType | undefined;
@@ -234,6 +235,14 @@ export const createCommonSlice: StateCreator<CommonSlice> = (set, get) => ({
 
         return chat;
       });
+
+      return { subSidebarChats };
+    }),
+  deleteSubSidebarChat: (conversationId) =>
+    set((state) => {
+      const subSidebarChats = [...state.subSidebarChats].filter(
+        (chat) => chat.conversationId !== conversationId,
+      );
 
       return { subSidebarChats };
     }),

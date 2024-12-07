@@ -1,15 +1,35 @@
+import { useDeleteConversationMutation } from "@/queries";
 import { useAppStore } from "@/store";
 import { CallingSenderReceiverDetails } from "@/types";
 import { convertDateIntoTimeAgoFormat } from "@/utils";
 import { peerConnection, socketClient } from "@/wrapper";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "react-toastify";
 
 const useMessageHeaderController = () => {
-  const { activeChat, currentUserData, setIsContactInfoContainerOpen } =
-    useAppStore();
+  const {
+    activeChat,
+    currentUserData,
+    setIsContactInfoContainerOpen,
+    setActiveChat,
+    deleteSubSidebarChat,
+  } = useAppStore();
 
+  const [
+    isConversationActionContainerOpen,
+    setIsConversationActionContainerOpen,
+  ] = useState(false);
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
+
+  const conversationActionContainerRef = useRef<HTMLDivElement | null>(null);
+
+  const deleteConversationMutation = useDeleteConversationMutation();
+
+  const {
+    mutate: deleteConversationMutate,
+    data: deleteConversationData,
+    isError: deleteConversationIsError,
+  } = deleteConversationMutation;
 
   const messageSubHeader = useMemo(() => {
     if (activeChat?.isActive) {
@@ -23,8 +43,21 @@ const useMessageHeaderController = () => {
     }
   }, [activeChat?.isActive, activeChat?.lastActive]);
 
+  const handleActionButtonClick = () => {
+    setIsConversationActionContainerOpen((prev) => !prev);
+  };
+
   const handleContactTitleClick = () => {
     setIsContactInfoContainerOpen(true);
+  };
+
+  const handleDeleteConversation = () => {
+    if (!activeChat?.conversationId) return;
+
+    const { conversationId } = activeChat;
+    deleteConversationMutate({
+      conversationId,
+    });
   };
 
   const createOffer = useCallback(
@@ -90,6 +123,41 @@ const useMessageHeaderController = () => {
     }
   }, [activeChat, peerConnection, createOffer, socketClient, currentUserData]);
 
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        conversationActionContainerRef.current &&
+        !conversationActionContainerRef.current.contains(e.target as Node)
+      ) {
+        setIsConversationActionContainerOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!activeChat?.conversationId) return;
+
+    if (
+      deleteConversationData &&
+      deleteConversationData.data.isError === false
+    ) {
+      setActiveChat(undefined);
+      deleteSubSidebarChat(activeChat?.conversationId);
+      setIsConversationActionContainerOpen(false);
+      toast.success("Chat deleted successfully.");
+    }
+
+    if (deleteConversationIsError) {
+      toast.error("Something went wrong, please try again.");
+    }
+  }, [deleteConversationData, activeChat?.conversationId]);
+
   // useEffect(() => {
   //   return () => {
   //     socketClient.off("offer");
@@ -112,6 +180,10 @@ const useMessageHeaderController = () => {
     handleCallClick,
     handleContactTitleClick,
     messageSubHeader,
+    isConversationActionContainerOpen,
+    handleActionButtonClick,
+    conversationActionContainerRef,
+    handleDeleteConversation,
   };
 };
 
