@@ -49,7 +49,7 @@ const useMessageInputController = () => {
     updateConversationMutation;
 
   const isSendButtonDisable = useMemo(
-    () => !(!!message || fileAttachments.size || !audioUrl),
+    () => !(!!message || fileAttachments.size || audioUrl),
     [message, fileAttachments],
   );
 
