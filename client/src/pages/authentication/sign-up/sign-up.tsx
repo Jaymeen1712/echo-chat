@@ -15,8 +15,33 @@ function SignUpPage() {
   } = useSignUpController();
 
   return (
-    <div className="relative grid h-screen grid-cols-2 p-4">
-      <div />
+    <div className="relative grid h-screen grid-cols-2 bg-white-primary p-2 text-black-primary">
+      <div className="relative z-10 h-full overflow-hidden rounded-xl bg-black-primary">
+        <div className="flex h-full w-full items-center justify-center">
+          <div className="absolute left-16 top-16 flex items-center gap-x-8 uppercase tracking-[4px] text-white-primary">
+            <span>a wise quote</span>
+            <span className="h-0.5 w-32 bg-white-primary" />
+          </div>
+          <div className="absolute bottom-16 left-16 flex flex-col gap-y-4 text-white-primary">
+            <div className="font-noto flex flex-col gap-y-3 text-7xl">
+              <span>A World</span>
+              <span>Of Connection</span>
+              <span>Starts Here</span>
+            </div>
+            <div className="mt-8 flex flex-col gap-y-2">
+              <span>
+                Join the community where conversations create memories.
+              </span>
+              <span>Every relationship begins with a simple sign-up.</span>
+            </div>
+          </div>
+          <img
+            src="/auth-container-background.jpg"
+            alt=""
+            className="h-full w-full object-cover"
+          />
+        </div>
+      </div>
       <AuthContainer
         title="Create an account"
         description="Create your first account"
@@ -91,14 +116,6 @@ function SignUpPage() {
           </Button>
         </form>
       </AuthContainer>
-
-      <div className="fixed">
-        <img
-          src="/wallhaven-ym1gpx.jpg"
-          alt="Avatar"
-          className="-translate-y-12 transform object-cover"
-        />
-      </div>
     </div>
   );
 }

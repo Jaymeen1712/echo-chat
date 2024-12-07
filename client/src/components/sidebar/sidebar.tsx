@@ -1,4 +1,5 @@
 import { BiLogOut } from "react-icons/bi";
+import IconLogo from "../icon-logo";
 import useSidebarController from "./sidebar-controller";
 import SidebarItem from "./sidebar-item";
 
@@ -8,7 +9,9 @@ const Sidebar = () => {
 
   return (
     <div className="relative flex h-full flex-col justify-between gap-y-2 px-2 py-8 text-xs text-white-primary">
-      <div className="text-center">Logo</div>
+      <div className="mt-1 flex items-center justify-center">
+        <IconLogo />
+      </div>
 
       <div className="flex flex-col gap-y-2 overflow-y-auto text-center">
         {primarySidebarItems.map((item) => (

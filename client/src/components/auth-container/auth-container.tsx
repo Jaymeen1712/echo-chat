@@ -1,3 +1,5 @@
+import Logo from "../logo";
+
 interface AuthContainerProps {
   title: string;
   description?: string;
@@ -12,10 +14,12 @@ const AuthContainer: React.FC<AuthContainerProps> = ({
   footer,
 }) => {
   return (
-    <div className="z-10 flex h-full flex-col rounded-3xl bg-white-primary p-8">
-      <div className="text-center">Logo</div>
+    <div className="z-10 flex h-full flex-col p-12">
+      <div className="w-22 h-22 flex items-center justify-center">
+        <Logo />
+      </div>
       <div className="flex flex-1 flex-col items-center justify-center">
-        <h1 className="text-center font-tinos text-5xl font-extrabold text-purple-dark-1">
+        <h1 className="font-noto text-center text-5xl font-extrabold text-purple-dark-1">
           {title}
         </h1>
         <span className="pt-3 text-sm opacity-50">{description}</span>
