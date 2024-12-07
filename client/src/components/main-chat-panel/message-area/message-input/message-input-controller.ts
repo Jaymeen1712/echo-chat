@@ -12,7 +12,7 @@ import {
 import { convertFileToBase64 } from "@/utils";
 import { socketClient } from "@/wrapper";
 import imageCompression from "browser-image-compression";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "react-toastify";
 
 const useMessageInputController = () => {
@@ -25,6 +25,7 @@ const useMessageInputController = () => {
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
 
   const attachContainerRef = useRef<HTMLDivElement | null>(null);
+  const textInputRef = useRef<HTMLInputElement | null>(null);
 
   const {
     activeChat,
@@ -49,7 +50,7 @@ const useMessageInputController = () => {
     updateConversationMutation;
 
   const isSendButtonDisable = useMemo(
-    () => !(!!message || fileAttachments.size || !audioUrl),
+    () => !(!!message || fileAttachments.size || audioUrl),
     [message, fileAttachments],
   );
 
@@ -67,12 +68,28 @@ const useMessageInputController = () => {
     });
   };
 
-  const handleOnMessageInputChange: React.ChangeEventHandler<
-    HTMLInputElement
-  > = (e) => {
-    const message = e.target.value;
-    setMessage(message);
-  };
+  const handleOnMessageInputChange: React.ChangeEventHandler<HTMLInputElement> =
+    useCallback(
+      (e) => {
+        const message = e.target.value;
+        setMessage(message);
+
+        if (!activeChat?.conversationId || !activeChat?.userId) return;
+
+        socketClient.emit("send-true-typing", {
+          conversationId: activeChat?.conversationId,
+          targetUserId: activeChat?.userId,
+        });
+
+        if (!message.length) {
+          socketClient.emit("send-false-typing", {
+            conversationId: activeChat?.conversationId,
+            targetUserId: activeChat?.userId,
+          });
+        }
+      },
+      [socketClient, activeChat?.conversationId, activeChat?.userId],
+    );
 
   const handleCreateMessage = (createdConversationId?: string) => {
     if (!activeChat || !currentUserData) return;
@@ -217,7 +234,8 @@ const useMessageInputController = () => {
         });
         patchActiveMessages({
           ...data,
-          type: data.sender._id === currentUserData.userId ? "receiver" : "sender",
+          type:
+            data.sender._id === currentUserData.userId ? "receiver" : "sender",
         });
         setIsNewChatOpen(false);
         setFileAttachments(new Map());
@@ -235,6 +253,11 @@ const useMessageInputController = () => {
             },
             type: "sender",
           },
+        });
+
+        socketClient.emit("send-false-typing", {
+          conversationId: activeChat?.conversationId,
+          targetUserId: activeChat?.userId,
         });
       }
     }
@@ -278,6 +301,7 @@ const useMessageInputController = () => {
   useEffect(() => {
     if (updateConversationData) {
       const updatedConversation = updateConversationData.data.data;
+
       patchSubSidebarChats(updatedConversation);
 
       // Handle socket
@@ -287,6 +311,10 @@ const useMessageInputController = () => {
       });
     }
   }, [updateConversationData]);
+
+  useEffect(() => {
+    textInputRef.current && textInputRef.current.focus();
+  }, []);
 
   return {
     message,
@@ -302,6 +330,7 @@ const useMessageInputController = () => {
     audioUrl,
     setAudioUrl,
     setAudioBlob,
+    textInputRef,
   };
 };
 

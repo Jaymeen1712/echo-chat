@@ -15,10 +15,11 @@ export default {
     extend: {
       colors: {
         "black-primary": "#202022",
-        "red-danger": "#ff7a55",
+        "red-danger": "#EA7553",
         "white-primary": "#f9fafc",
         "purple-primary": "#7678ed",
         "purple-dark-1": "#232C6A",
+        "contrast-color": "#34B7F1"
       },
       fontFamily: {
         tinos: ['"Tinos"', "serif"],

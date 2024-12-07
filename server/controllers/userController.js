@@ -1,8 +1,11 @@
 const bcrypt = require("bcrypt");
 const User = require("../models/user");
+const { ObjectId } = require("mongodb");
 const { handleGetResponse } = require("../utils/utils");
 const jwt = require("jsonwebtoken");
 const { sendErrors } = require("../utils/getError");
+const Message = require("../models/message");
+const Conversation = require("../models/conversation");
 
 const createUser = async (req, res) => {
   try {
@@ -153,26 +156,31 @@ const searchUsers_get = async (req, res) => {
     const { query = "" } = req.body;
     const user = req.user;
 
+    const userObjectId = new ObjectId(user.userId);
+
     const users = await User.aggregate([
       // Match users whose name matches the query
       {
         $match: {
           name: { $regex: query, $options: "i" },
+          _id: { $ne: userObjectId }, // Exclude the requesting user
         },
       },
-      // Lookup conversations to check relationships
+      // Lookup conversations to check if the user has a conversation with the requesting user
       {
         $lookup: {
           from: "conversations",
-          let: { userId: "$_id", requestingUserId: user._id },
+          let: {
+            userId: "$_id",
+            requestingUserId: userObjectId,
+          },
           pipeline: [
             {
               $match: {
                 $expr: {
-                  // Check if the user ID is a participant in the conversation
                   $and: [
-                    { $in: ["$$userId", "$participants"] },
-                    { $in: ["$$requestingUserId", "$participants"] },
+                    { $in: ["$$userId", "$participants"] }, // User is in participants
+                    { $in: ["$$requestingUserId", "$participants"] }, // Requesting user is in participants
                   ],
                 },
               },
@@ -181,13 +189,13 @@ const searchUsers_get = async (req, res) => {
           as: "userConversations",
         },
       },
-      // Filter out users who have conversations with the requesting user
+      // Filter out users who already have conversations with the requesting user
       {
         $match: {
-          userConversations: { $size: 0 },
+          userConversations: { $size: 0 }, // Only keep users with no conversations
         },
       },
-      // Select the desired fields
+      // Select only necessary fields
       {
         $project: {
           name: 1,
@@ -270,10 +278,68 @@ const updateUser_patch = async (req, res) => {
   }
 };
 
+const handleDisconnectUser = async (userId) => {
+  try {
+    if (!userId) {
+      return;
+    }
+
+    await User.findOneAndUpdate(
+      { _id: userId },
+      {
+        lastActive: new Date(),
+        isActive: false,
+      }
+    );
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const handleConnectUser = async (userId) => {
+  try {
+    if (!userId) {
+      return;
+    }
+
+    await User.findOneAndUpdate(
+      { _id: userId },
+      {
+        isActive: true,
+      }
+    );
+
+    const userObjectId = new ObjectId(userId);
+
+    // Change isDelivered to true on user connection
+    // Step 1: Fetch conversation IDs where the user is a participant
+    const conversations = await Conversation.aggregate([
+      { $match: { participants: userObjectId } },
+      { $project: { _id: 1 } },
+    ]);
+
+    const conversationIds = conversations.map((conv) => conv._id);
+
+    // Step 2: Update messages in those conversations
+    await Message.updateMany(
+      {
+        conversation: { $in: conversationIds },
+        isDelivered: false,
+        sender: { $ne: userObjectId },
+      },
+      { $set: { isDelivered: true } }
+    );
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 module.exports = {
   createUser,
   loginUser,
   getUser,
   searchUsers_get,
   updateUser_patch,
+  handleDisconnectUser,
+  handleConnectUser,
 };

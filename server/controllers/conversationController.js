@@ -47,25 +47,116 @@ module.exports.conversation_get = async (req, res) => {
     const user = req.user;
     const userId = new ObjectId(user.userId);
 
-    const conversations = await Conversation.find(
+    // const conversations = await Conversation.find(
+    //   {
+    //     participants: userId,
+    //   },
+    //   {
+    //     createdAt: true,
+    //     updatedAt: true,
+    //   }
+    // )
+    //   .populate("participants", ["name", "image", "isActive", "lastActive"])
+    //   .populate("lastMessage", ["content"])
+    //   .populate({
+    //     path: "lastMessage",
+    //     populate: {
+    //       path: "sender",
+    //       select: ["_id"],
+    //     },
+    //   })
+    //   .sort({ updatedAt: -1 });
+
+    const conversations = await Conversation.aggregate([
       {
-        participants: userId,
+        $match: {
+          participants: userId, // Match conversations that include the user
+        },
       },
       {
-        createdAt: true,
-        updatedAt: true,
-      }
-    )
-      .populate("participants", ["name", "image"])
-      .populate("lastMessage", ["content"])
-      .populate({
-        path: "lastMessage",
-        populate: {
-          path: "sender",
-          select: ["_id"],
+        $lookup: {
+          from: "messages", // Reference the "messages" collection
+          let: { conversationId: "$_id" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ["$conversation", "$$conversationId"] }, // Match messages in the conversation
+                    { $eq: ["$isSeen", false] }, // Only count unseen messages
+                    { $ne: ["$sender", userId] }, // Exclude messages sent by the user
+                  ],
+                },
+              },
+            },
+            { $count: "unreadCount" }, // Count the number of unseen messages
+          ],
+          as: "unreadMessages",
         },
-      })
-      .sort({ updatedAt: -1 });
+      },
+      {
+        $addFields: {
+          unreadMessagesCount: {
+            $ifNull: [{ $arrayElemAt: ["$unreadMessages.unreadCount", 0] }, 0], // Set unread count or 0 if none
+          },
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "participants",
+          foreignField: "_id",
+          as: "participants",
+        },
+      },
+      {
+        $lookup: {
+          from: "messages",
+          localField: "lastMessage",
+          foreignField: "_id",
+          as: "lastMessageDetails",
+        },
+      },
+      {
+        $unwind: {
+          path: "$lastMessageDetails",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "lastMessageDetails.sender",
+          foreignField: "_id",
+          as: "lastMessageDetails.senderDetails",
+        },
+      },
+      {
+        $project: {
+          participants: {
+            _id: 1,
+            name: 1,
+            image: 1,
+            isActive: 1,
+            lastActive: 1,
+          },
+          lastMessage: {
+            $mergeObjects: [
+              "$lastMessageDetails",
+              {
+                sender: {
+                  $arrayElemAt: ["$lastMessageDetails.senderDetails", 0],
+                },
+              },
+            ],
+          },
+          unreadMessagesCount: 1,
+          createdAt: 1,
+          updatedAt: 1,
+        },
+      },
+      { $sort: { updatedAt: -1 } },
+    ]);
 
     if (!conversations || conversations.length === 0) {
       return res.status(202).json(
@@ -119,7 +210,7 @@ module.exports.conversation_patch = async (req, res) => {
         new: true,
       }
     )
-      .populate("participants", ["name", "image"])
+      .populate("participants", ["name", "image", "isActive", "lastActive"])
       .populate("lastMessage", ["content"])
       .populate({
         path: "lastMessage",

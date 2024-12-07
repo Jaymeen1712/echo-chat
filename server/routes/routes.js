@@ -9,6 +9,7 @@ const {
 const authenticateToken = require("../middleware/authMiddleware");
 const conversation_controller = require("../controllers/conversationController");
 const message_controller = require("../controllers/messageController");
+const { clients } = require("../utils/utils");
 
 const router = express.Router();
 
@@ -55,7 +56,15 @@ router.post(
 );
 
 // Message routes
-router.post("/message", authenticateToken, message_controller.message_post);
+router.post(
+  "/message",
+  authenticateToken,
+  (req, _res, next) => {
+    req.onlineClients = clients;
+    next();
+  },
+  message_controller.message_post
+);
 router.get(
   "/messages/:conversationId",
   authenticateToken,

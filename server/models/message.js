@@ -22,6 +22,14 @@ const messageSchema = new mongoose.Schema(
       },
     ],
     seenBy: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    isSeen: {
+      type: Boolean,
+      default: false,
+    },
+    isDelivered: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

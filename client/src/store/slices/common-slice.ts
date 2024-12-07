@@ -3,9 +3,9 @@ import { ChatType } from "@/components/sub-sidebar/chats/chats-controller";
 import {
   ActiveChatType,
   ActiveContactFileInfoType,
-  ActiveContactInfoType,
   GroupedMessageByDateType,
   MeResponseType,
+  ReceivedOfferType,
   SingleConversationType,
   SubSidebarKeysType,
 } from "@/types";
@@ -30,9 +30,19 @@ export interface CommonSlice {
   activeMessages: GroupedMessageByDateType[];
   setActiveMessages: (data: GroupedMessageByDateType[]) => void;
   patchActiveMessages: (data: SingleMessageWithTypeType) => void;
+  patchActiveMessagesIsDeliveredField: () => void;
   subSidebarChats: ChatType[];
   setSubSidebarChats: (data: ChatType[]) => void;
   patchSubSidebarChats: (data: SingleConversationType) => void;
+  patchSubSidebarChatsIsActiveStates: (data: string[]) => void;
+  findAndUpdateSubSidebarChatUnreadMessagesFieldToZero: (data: string) => void;
+  deleteSubSidebarChat: (data: string) => void;
+
+  // Calling state types
+  receivedOffer: ReceivedOfferType | undefined;
+  setReceivedOffer: (data: ReceivedOfferType | undefined) => void;
+  receivedCandidate: RTCIceCandidateInit | undefined;
+  setReceivedCandidate: (data: RTCIceCandidateInit | undefined) => void;
   isContactInfoContainerOpen: boolean;
   setIsContactInfoContainerOpen: (data: boolean) => void;
   toggleContactInfoContainerState: () => void;
@@ -42,6 +52,10 @@ export interface CommonSlice {
   setActiveContactFileInfo: (
     data: ActiveContactFileInfoType | undefined,
   ) => void;
+
+  // Live user socket types
+  onlineUsers: string[];
+  setOnlineUsers: (data: string[]) => void;
 }
 
 export const createCommonSlice: StateCreator<CommonSlice> = (set, get) => ({
@@ -97,6 +111,24 @@ export const createCommonSlice: StateCreator<CommonSlice> = (set, get) => ({
         activeMessages: groupedMessageByDate,
       };
     }),
+  patchActiveMessagesIsDeliveredField: () =>
+    set((state) => {
+      const updatedActiveMessages = state.activeMessages.map(
+        ({ messages, ...rest }) => {
+          const updatedMessages = messages.map((message) => {
+            return {
+              ...message,
+              isDelivered: true,
+            };
+          });
+          return {
+            ...rest,
+            messages: updatedMessages,
+          };
+        },
+      );
+      return { activeMessages: updatedActiveMessages };
+    }),
   subSidebarChats: [],
   setSubSidebarChats: (subSidebarChats: ChatType[]) =>
     set({
@@ -109,14 +141,21 @@ export const createCommonSlice: StateCreator<CommonSlice> = (set, get) => ({
     }),
   patchSubSidebarChats: (newSubSidebarChat) =>
     set((state) => {
-      const { participants, _id, createdAt, updatedAt } = newSubSidebarChat;
+      const { participants, _id, createdAt, updatedAt, unreadMessagesCount } =
+        newSubSidebarChat;
       const currentUserId = state.currentUserData?.userId;
 
       // Find the participant who is not the current user
       const otherParticipant = participants.find(
         (participant) => participant._id !== currentUserId,
       );
-      const { name = "", image = "" } = otherParticipant || {};
+      const {
+        name = "",
+        image = "",
+        isActive = false,
+        lastActive = new Date(),
+        _id: userId,
+      } = otherParticipant || {};
 
       // Construct the new chat object
       const subSidebarChat = {
@@ -124,10 +163,13 @@ export const createCommonSlice: StateCreator<CommonSlice> = (set, get) => ({
         name,
         content: newSubSidebarChat?.lastMessage?.content || "", // Default to an empty string if no content
         conversationId: _id,
-        senderId: newSubSidebarChat?.lastMessage?.sender?._id, // Handle cases where lastMessage or sender might be null
+        senderId: userId, // Handle cases where lastMessage or sender might be null
         createdAt,
         updatedAt,
         files: newSubSidebarChat?.lastMessage?.files,
+        isActive,
+        lastActive,
+        unreadMessagesCount,
       };
 
       // Check if the conversation already exists in the subSidebarChats
@@ -152,6 +194,70 @@ export const createCommonSlice: StateCreator<CommonSlice> = (set, get) => ({
 
       return { subSidebarChats: updatedSubSidebarChats };
     }),
+  patchSubSidebarChatsIsActiveStates: (onlineUsers) =>
+    set((state) => {
+      const subSidebarChats = [...state.subSidebarChats].map((chat) => {
+        const { senderId } = chat;
+
+        if (!senderId) return chat;
+
+        if (onlineUsers.includes(senderId)) {
+          return {
+            ...chat,
+            isActive: true,
+            lastActive: new Date(),
+          };
+        } else {
+          return {
+            ...chat,
+            isActive: false,
+          };
+        }
+      });
+
+      return { subSidebarChats };
+    }),
+  findAndUpdateSubSidebarChatUnreadMessagesFieldToZero: (
+    updateConversationId,
+  ) =>
+    set((state) => {
+      const subSidebarChats = [...state.subSidebarChats].map((chat) => {
+        const { conversationId } = chat;
+
+        if (!conversationId) return chat;
+
+        if (updateConversationId === conversationId) {
+          return {
+            ...chat,
+            unreadMessagesCount: 0,
+          };
+        }
+
+        return chat;
+      });
+
+      return { subSidebarChats };
+    }),
+  deleteSubSidebarChat: (conversationId) =>
+    set((state) => {
+      const subSidebarChats = [...state.subSidebarChats].filter(
+        (chat) => chat.conversationId !== conversationId,
+      );
+
+      return { subSidebarChats };
+    }),
+
+  // Calling states
+  receivedOffer: undefined,
+  setReceivedOffer: (receivedOffer) =>
+    set({
+      receivedOffer,
+    }),
+  receivedCandidate: undefined,
+  setReceivedCandidate: (receivedCandidate) =>
+    set({
+      receivedCandidate,
+    }),
   isContactInfoContainerOpen: false,
   setIsContactInfoContainerOpen: (isContactInfoContainerOpen) =>
     set({
@@ -170,5 +276,12 @@ export const createCommonSlice: StateCreator<CommonSlice> = (set, get) => ({
   setActiveContactFileInfo: (activeContactFileInfo) =>
     set({
       activeContactFileInfo,
+    }),
+
+  // Live users socket states
+  onlineUsers: [],
+  setOnlineUsers: (onlineUsers) =>
+    set({
+      onlineUsers,
     }),
 });

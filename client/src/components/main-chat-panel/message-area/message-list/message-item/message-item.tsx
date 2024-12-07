@@ -1,6 +1,6 @@
-import { handleGetAvatarAlternativeURL } from "@/utils";
 import moment from "moment";
 import { IoMdDownload } from "react-icons/io";
+import { IoCheckmark, IoCheckmarkDone } from "react-icons/io5";
 import { toast } from "react-toastify";
 import { SingleMessageWithTypeType } from "../message-list-controller";
 
@@ -10,7 +10,7 @@ interface MessageItemProps {
 }
 
 const MessageItem: React.FC<MessageItemProps> = ({ type, message }) => {
-  const { sender, createdAt } = message;
+  const { sender, createdAt, isDelivered, isSeen } = message;
   const { name } = sender;
 
   const handleDownload = (url: string, name: string) => {
@@ -33,19 +33,19 @@ const MessageItem: React.FC<MessageItemProps> = ({ type, message }) => {
       <div
         className={`flex w-[70%] items-end gap-x-4 ${type !== "sender" && "!flex-row-reverse"}`}
       >
-        <div className="avatar">
+        {/* <div className="avatar">
           <img
             src={sender?.image || handleGetAvatarAlternativeURL(sender.name)}
             alt="Avatar"
           />
-        </div>
+        </div> */}
 
         <div
-          className={`flex flex-col gap-y-3 rounded-2xl bg-purple-primary/10 px-5 py-3 text-sm ${type !== "sender" && "!bg-purple-primary"}`}
+          className={`flex flex-col gap-y-3 rounded-2xl bg-purple-primary px-5 py-3 text-sm text-white-primary ${type !== "sender" && "!bg-purple-primary/10"}`}
         >
-          {type === "sender" && (
-            <h4 className={`font-semibold text-purple-dark-1`}>{name}</h4>
-          )}
+          {/* {type === "sender" && (
+            <h4 className={`font-semibold text-white-primary`}>{name}</h4>
+          )} */}
 
           <div>
             {message?.files?.length ? (
@@ -133,20 +133,39 @@ const MessageItem: React.FC<MessageItemProps> = ({ type, message }) => {
             )}
 
             <span
-              className={`font-medium ${type !== "sender" && "!text-white-primary"} break-all`}
+              className={`font-medium ${type !== "sender" && "!text-purple-dark-1"} break-all`}
             >
               {message?.content}
             </span>
           </div>
 
           <div
-            className={`flex items-center gap-x-2 ${type !== "sender" && "!text-white-primary"}`}
+            className={`flex items-center gap-x-2 ${type !== "sender" && "!text-purple-dark-1"}`}
           >
             <div className="h-4 w-4 flex-1 rounded-full"></div>
 
-            <div className="flex gap-x-4 opacity-50">
-              {/* <span>23</span> */}
-              <span>{moment(createdAt).format("hh:mm A")}</span>
+            <div className="flex items-center gap-x-2">
+              <span className="opacity-50">
+                {moment(createdAt).format("hh:mm A")}
+              </span>
+              {type !== "sender" && (
+                <div className="text-purple-primary">
+                  {!isSeen && !isDelivered ? (
+                    <IoCheckmark size={20} className="opacity-50" />
+                  ) : (
+                    <>
+                      {isSeen ? (
+                        <IoCheckmarkDone
+                          size={20}
+                          className="text-contrast-color"
+                        />
+                      ) : (
+                        <IoCheckmarkDone size={20} className="opacity-50" />
+                      )}
+                    </>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>

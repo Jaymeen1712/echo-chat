@@ -13,9 +13,10 @@ const ChatItem: React.FC<ChatItemProps> = ({ chat, handleChatClick }) => {
     isCurrentUserLastMessageOwner,
     lastMessage,
     lastMessageTimestamp,
+    isSenderTyping,
   } = useChatItemController({ chat });
 
-  const { name, conversationId } = chat;
+  const { name, conversationId, isActive, unreadMessagesCount } = chat;
 
   return (
     <div
@@ -30,20 +31,41 @@ const ChatItem: React.FC<ChatItemProps> = ({ chat, handleChatClick }) => {
         />
       </div>
       <div className="flex-1">
-        <h4 className="text-base font-semibold leading-7">{name}</h4>
-        <span className="flex gap-x-2 leading-7">
-          {conversationId && (
-            <span className="text-purple-primary">
-              {isCurrentUserLastMessageOwner ? "You:" : `${name}:`}
-            </span>
+        <div className="flex items-center gap-x-2">
+          {isActive && (
+            <div className="animate-blink h-2 w-2 rounded-full bg-red-danger" />
           )}
-          <span className="line-clamp-1 flex-1 text-ellipsis break-all opacity-50">
-            {lastMessage}
-          </span>
-        </span>
+          <h4 className="text-base font-semibold leading-7">{name}</h4>
+        </div>
+        {isSenderTyping ? (
+          <div className="flex items-center gap-x-1 text-purple-dark-1">
+            <span>Typing</span>
+            <span className="flex items-center gap-0.5">
+              <span className="dot-animation bg-purple-dark-1"></span>
+              <span className="dot-animation bg-purple-dark-1"></span>
+              <span className="dot-animation bg-purple-dark-1"></span>
+            </span>
+          </div>
+        ) : (
+          <div className="flex gap-x-2 leading-7">
+            {conversationId && (
+              <span className="text-purple-primary">
+                {isCurrentUserLastMessageOwner ? "You:" : `${name}:`}
+              </span>
+            )}
+            <span className="line-clamp-1 flex-1 text-ellipsis break-all opacity-50">
+              {lastMessage}
+            </span>
+          </div>
+        )}
       </div>
-      <div>
+      <div className="flex flex-col items-center justify-between gap-y-2">
         <span className="opacity-50">{lastMessageTimestamp}</span>
+        {unreadMessagesCount > 0 && (
+          <span className="flex h-[20px] w-[20px] items-center justify-center rounded-full bg-red-danger text-xs text-white-primary">
+            {unreadMessagesCount}
+          </span>
+        )}
       </div>
     </div>
   );

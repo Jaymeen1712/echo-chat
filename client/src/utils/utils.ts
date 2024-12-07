@@ -144,10 +144,6 @@ export function convertDateIntoTimeAgoFormat(
 
     const seconds = Math.floor((now - targetTime) / 1000);
 
-    if (seconds < 1) {
-      return "a moment ago"; // For 0 seconds
-    }
-
     if (seconds < 60) {
       return `${seconds}s`; // Seconds ago
     }
@@ -194,6 +190,6 @@ export const handleDownload = (url: string, name: string) => {
 
 export const handleGetAvatarAlternativeURL = (name: string | undefined) => {
   if (!name) return;
-  
+
   return `https://ui-avatars.com/api/?name=${name.split(" ").join("+")}&background=7678ed&color=f9fafc`;
 };

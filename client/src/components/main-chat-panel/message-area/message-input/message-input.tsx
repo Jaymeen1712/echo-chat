@@ -21,6 +21,7 @@ const MessageInput = () => {
     audioUrl,
     setAudioUrl,
     setAudioBlob,
+    textInputRef,
   } = useMessageInputController();
 
   return (
@@ -111,6 +112,7 @@ const MessageInput = () => {
 
       <div className="relative">
         <input
+          ref={textInputRef}
           type="text"
           className="w-full rounded-xl bg-inherit p-3 py-6 pl-16 pr-28 placeholder:text-black-primary/50 focus:outline-none"
           placeholder="Your message"

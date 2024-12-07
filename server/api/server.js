@@ -5,6 +5,12 @@ const express = require("express");
 const mongoose = require("mongoose");
 const router = require("../routes/routes");
 const { Server } = require("socket.io");
+const {
+  handleDisconnectUser,
+  handleConnectUser,
+} = require("../controllers/userController");
+const message_controller = require("../controllers/messageController");
+const { clients } = require("../utils/utils");
 
 const port = process.env.PORT || 4000;
 
@@ -42,7 +48,33 @@ const io = new Server(server, {
 });
 
 io.on("connection", (socket) => {
-  console.log(`User Connected: ${socket.id}`);
+  // console.log(`User Connected: ${socket.id}`);
+
+  socket.on("register", (userId) => {
+    if (userId) {
+      clients[userId] = socket.id;
+      handleConnectUser(userId);
+    }
+
+    // Notify all clients about the updated user list
+    io.emit("online-users", Object.keys(clients));
+    console.log("🚀 ~ socket.on register ~ clients:", clients);
+  });
+
+  // Handle disconnection
+  socket.on("disconnect", () => {
+    console.log(`User disconnected: ${socket.id}`);
+    const disconnectedUserId = Object.keys(clients).find(
+      (key) => clients[key] === socket.id
+    );
+
+    if (disconnectedUserId) {
+      handleDisconnectUser(disconnectedUserId);
+      delete clients[disconnectedUserId];
+    }
+    io.emit("online-users", Object.keys(clients));
+    console.log("🚀 ~ socket.on disconnect ~ clients:", clients);
+  });
 
   // Conversations
   socket.on("conversation-updated", async ({ conversation, receiverId }) => {
@@ -56,6 +88,78 @@ io.on("connection", (socket) => {
   socket.on("message-updated", async ({ message }) => {
     io.emit("update-message", {
       message,
+    });
+  });
+
+  // Relay offer to the target user
+  socket.on("send-offer", ({ senderUserDetails, targetUserId, offer }) => {
+    const targetUserSocketId = clients[targetUserId];
+    if (targetUserSocketId) {
+      io.to(targetUserSocketId).emit("receive-offer", {
+        senderUserDetails,
+        targetUserId,
+        offer,
+      });
+      console.log(`Offer sent from ${socket.id} to ${targetUserId}`);
+    } else {
+      console.error(`Target user ${targetUserId} not found`);
+    }
+  });
+
+  // Relay answer to the target user
+  socket.on("send-answer", ({ senderUserId, answer }) => {
+    const targetUserSocketId = clients[senderUserId];
+    if (targetUserSocketId) {
+      io.to(targetUserSocketId).emit("receive-answer", {
+        answer,
+      });
+      console.log(`Answer sent from ${socket.id} to ${senderUserId}`);
+    } else {
+      console.error(`Target user ${senderUserId} not found`);
+    }
+  });
+
+  socket.on("send-ice-candidate", ({ targetUserId, candidate }) => {
+    console.log(`ICE Candidate from ${socket.id} to ${targetUserId}`);
+    const targetUserSocketId = clients[targetUserId];
+
+    if (targetUserSocketId) {
+      io.to(targetUserSocketId).emit("receive-ice-candidate", {
+        targetUserId,
+        candidate,
+      });
+      console.log(`Relayed ICE candidate to ${targetUserId}`);
+    } else {
+      console.error(`Target user ${targetUserId} not found`);
+    }
+  });
+
+  // Live messages
+  socket.on("update-seen-messages", async ({ conversationId, senderId }) => {
+    if (!conversationId || !senderId) return;
+    const messages = await message_controller.handleUpdateIsSeen(
+      conversationId,
+      senderId
+    );
+
+    io.emit("updated-seen-messages", { messages, conversationId });
+  });
+  socket.on("send-true-typing", async ({ conversationId, targetUserId }) => {
+    if (!conversationId || !targetUserId) return;
+
+    const targetUserSocketId = clients[targetUserId];
+
+    io.to(targetUserSocketId).emit("receive-true-typing", {
+      conversationId,
+    });
+  });
+  socket.on("send-false-typing", async ({ conversationId, targetUserId }) => {
+    if (!conversationId || !targetUserId) return;
+
+    const targetUserSocketId = clients[targetUserId];
+
+    io.to(targetUserSocketId).emit("receive-false-typing", {
+      conversationId,
     });
   });
 });

@@ -28,6 +28,8 @@ export interface ActiveChatType {
   userId?: string;
   conversationId?: string;
   isChatTemp: boolean;
+  isActive: boolean;
+  lastActive: Date;
 }
 export interface SingleConversationType {
   _id: string;
@@ -37,12 +39,15 @@ export interface SingleConversationType {
   isGroup: boolean;
   createdAt: string;
   updatedAt: string;
+  unreadMessagesCount: number;
   __v: number;
 }
 export interface ParticipantsEntity {
   _id: string;
   name: string;
   image?: string;
+  isActive: boolean;
+  lastActive: Date;
 }
 export interface SingleMessageType {
   _id: string;
@@ -54,6 +59,8 @@ export interface SingleMessageType {
   updatedAt: string;
   files?: FileType[];
   __v: number;
+  isSeen: boolean;
+  isDelivered: boolean;
 }
 export interface Sender {
   _id: string;
@@ -70,6 +77,15 @@ export interface FileType {
   name: string;
   size: number;
   type: string;
+}
+export interface ReceivedOfferType {
+  offer: RTCSessionDescriptionInit;
+  senderDetails: CallingSenderReceiverDetails;
+}
+export interface CallingSenderReceiverDetails {
+  userId: string;
+  image?: string;
+  name: string;
 }
 export type ActiveContactInfoType = ActiveChatType;
 export type ActiveContactFileInfoType = {

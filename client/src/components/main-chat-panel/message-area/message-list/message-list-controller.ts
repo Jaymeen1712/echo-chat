@@ -102,6 +102,13 @@ const useMessageListController = () => {
       ) {
         patchActiveMessages(message);
       }
+
+      if (!activeChat?.conversationId || !currentUserData?._id) return;
+
+      socketClient.emit("update-seen-messages", {
+        conversationId: activeChat?.conversationId,
+        senderId: currentUserData?._id,
+      });
     });
   }, [socketClient, currentUserData]);
 

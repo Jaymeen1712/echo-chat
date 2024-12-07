@@ -5,30 +5,35 @@ const userSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: true, // Name is required
-      trim: true, // Removes extra spaces
+      required: true,
+      trim: true,
     },
     email: {
       type: String,
-      unique: true, // Ensures emails are unique
+      unique: true,
       required: true,
       match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/],
     },
     image: {
-      type: String, // URL of the user's profile image
+      type: String,
       required: false,
     },
     password: {
       type: String,
-      required: true, // Password hash for authentication
+      required: true,
     },
     isActive: {
       type: Boolean,
-      default: true, // Indicates if the user account is active
+      default: true,
+    },
+    lastActive: {
+      type: Date,
+      default: Date.now,
+      required: true,
     },
   },
   {
-    timestamps: true, // Automatically adds `createdAt` and `updatedAt` fields
+    timestamps: true,
   }
 );
 
