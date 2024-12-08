@@ -3,7 +3,7 @@ import { useSearchUserQuery } from "@/queries/user.queries";
 import { useAppStore } from "@/store";
 import { FileType, GetAllConversationsType } from "@/types";
 import { socketClient } from "@/wrapper";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useLayoutEffect, useState } from "react";
 
 export interface ChatType {
   image?: string;
@@ -32,6 +32,8 @@ const useChatsSubSideController = () => {
     activeChat,
     findAndUpdateSubSidebarChatUnreadMessagesFieldToZero,
   } = useAppStore();
+
+  const [subSidebarUsers, setSubSidebarUsers] = useState<ChatType[]>([]);
 
   const {
     data: searchUserData,
@@ -92,7 +94,7 @@ const useChatsSubSideController = () => {
     }
   };
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     // Set search users data
     if (searchUserData && currentUserData) {
       const chats: ChatType[] = searchUserData.data.users.map(
@@ -100,14 +102,20 @@ const useChatsSubSideController = () => {
           _id,
           name,
           image,
+          isActive,
+          lastActive,
         }: {
           _id: string;
           name: string;
           image?: string;
+          isActive: boolean;
+          lastActive: Date;
         }) => ({
           image,
           name,
           senderId: _id,
+          isActive,
+          lastActive,
         }),
       );
 
@@ -117,11 +125,11 @@ const useChatsSubSideController = () => {
         (chat) => chat.senderId !== userId,
       );
 
-      setSubSidebarChats(chatsWithoutCurrentUser);
+      setSubSidebarUsers(chatsWithoutCurrentUser);
     }
   }, [searchUserData, currentUserData, isSearchUserDataUpdated]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     // Set all conversations
     if (
       getAllConversationsData &&
@@ -244,6 +252,8 @@ const useChatsSubSideController = () => {
     isSearchUserLoading,
     handleChatClick,
     isGetAllConversationsLoading,
+    subSidebarUsers,
+    subSidebarChats,
   };
 };
 

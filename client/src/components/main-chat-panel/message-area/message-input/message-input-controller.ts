@@ -26,6 +26,7 @@ const useMessageInputController = () => {
 
   const attachContainerRef = useRef<HTMLDivElement | null>(null);
   const textInputRef = useRef<HTMLInputElement | null>(null);
+  const attachToggleContainerRef = useRef<HTMLDivElement | null>(null);
 
   const {
     activeChat,
@@ -267,7 +268,9 @@ const useMessageInputController = () => {
     const handleClickOutside = (e: MouseEvent) => {
       if (
         attachContainerRef.current &&
-        !attachContainerRef.current.contains(e.target as Node)
+        attachToggleContainerRef.current &&
+        !attachContainerRef.current.contains(e.target as Node) &&
+        !attachToggleContainerRef.current.contains(e.target as Node)
       ) {
         setIsAttachContainerOpen(false);
       }
@@ -331,6 +334,7 @@ const useMessageInputController = () => {
     setAudioUrl,
     setAudioBlob,
     textInputRef,
+    attachToggleContainerRef,
   };
 };
 

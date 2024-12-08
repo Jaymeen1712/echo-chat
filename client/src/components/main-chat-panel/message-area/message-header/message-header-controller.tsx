@@ -22,6 +22,9 @@ const useMessageHeaderController = () => {
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
 
   const conversationActionContainerRef = useRef<HTMLDivElement | null>(null);
+  const conversationActionToggleContainerRef = useRef<HTMLDivElement | null>(
+    null,
+  );
 
   const deleteConversationMutation = useDeleteConversationMutation();
 
@@ -127,7 +130,9 @@ const useMessageHeaderController = () => {
     const handleClickOutside = (e: MouseEvent) => {
       if (
         conversationActionContainerRef.current &&
-        !conversationActionContainerRef.current.contains(e.target as Node)
+        conversationActionToggleContainerRef.current &&
+        !conversationActionContainerRef.current.contains(e.target as Node) &&
+        !conversationActionToggleContainerRef.current.contains(e.target as Node)
       ) {
         setIsConversationActionContainerOpen(false);
       }
@@ -184,6 +189,7 @@ const useMessageHeaderController = () => {
     handleActionButtonClick,
     conversationActionContainerRef,
     handleDeleteConversation,
+    conversationActionToggleContainerRef
   };
 };
 

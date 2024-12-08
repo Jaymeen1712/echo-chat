@@ -1,3 +1,4 @@
+import { AnimatePresence, motion } from "framer-motion";
 import { FiSend } from "react-icons/fi";
 import { GrAttachment } from "react-icons/gr";
 import { IoMdPhotos } from "react-icons/io";
@@ -22,7 +23,15 @@ const MessageInput = () => {
     setAudioUrl,
     setAudioBlob,
     textInputRef,
+    attachToggleContainerRef,
   } = useMessageInputController();
+
+  const slideUpAnimation = {
+    hidden: { opacity: 0 }, // Start from below with opacity 0
+    visible: { opacity: 1 }, // Final position and full opacity
+    exit: { opacity: 0 }, // Animate back down on exit
+    transition: { duration: 0.3, ease: "easeInOut" },
+  };
 
   return (
     <div className="rounded-xl bg-purple-primary/10 text-sm text-black-primary">
@@ -146,41 +155,51 @@ const MessageInput = () => {
         />
 
         {/* Attach container */}
-        {isAttachContainerOpen ? (
-          <div
-            className="box-shadow-container absolute bottom-0 left-0 z-30 -translate-y-[80px] rounded-xl bg-white-primary"
-            ref={attachContainerRef}
-          >
-            <div className="flex flex-col rounded-xl bg-purple-primary/10 p-2">
-              <div
-                className="flex cursor-pointer items-center gap-x-2 rounded-lg p-2 pr-10 hover:bg-purple-primary/20"
-                onClick={() => {
-                  document.getElementById("attach-image")?.click();
-                  handleToggleAttachButton();
-                }}
-              >
-                <IoMdPhotos className="fill-blue-600" size={22} />
-                <span>Photos</span>
+        <AnimatePresence>
+          {isAttachContainerOpen ? (
+            <motion.div
+              className="box-shadow-container absolute bottom-0 left-0 z-30 -translate-y-[80px] rounded-xl bg-white-primary"
+              ref={attachContainerRef}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              variants={slideUpAnimation}
+            >
+              <div className="flex flex-col rounded-xl bg-purple-primary/10 p-2">
+                {/* Photos */}
+                <div
+                  className="flex cursor-pointer items-center gap-x-2 rounded-lg p-2 pr-10 hover:bg-purple-primary/20"
+                  onClick={() => {
+                    document.getElementById("attach-image")?.click();
+                    handleToggleAttachButton();
+                  }}
+                >
+                  <IoMdPhotos className="fill-blue-600" size={22} />
+                  <span>Photos</span>
+                </div>
+                {/* Documents */}
+                <div
+                  className="flex cursor-pointer items-center gap-x-2 rounded-lg p-2 pr-10 hover:bg-purple-primary/20"
+                  onClick={() => {
+                    document.getElementById("attach-document")?.click();
+                    handleToggleAttachButton();
+                  }}
+                >
+                  <IoDocumentText className="fill-orange-600" size={22} />
+                  <span>Documents</span>
+                </div>
               </div>
-              <div
-                className="flex cursor-pointer items-center gap-x-2 rounded-lg p-2 pr-10 hover:bg-purple-primary/20"
-                onClick={() => {
-                  document.getElementById("attach-document")?.click();
-                  handleToggleAttachButton();
-                }}
-              >
-                <IoDocumentText className="fill-orange-600" size={22} />
-                <span>Documents</span>
-              </div>
-            </div>
-          </div>
-        ) : null}
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
 
-        <GrAttachment
-          className={`absolute left-8 top-1/2 -translate-x-1/2 -translate-y-1/2 cursor-pointer text-purple-primary ${(fileAttachments.size >= 3 || audioUrl) && "cursor-not-allowed opacity-50"}`}
-          size={23}
-          onClick={handleToggleAttachButton}
-        />
+        <div ref={attachToggleContainerRef}>
+          <GrAttachment
+            className={`absolute left-8 top-1/2 -translate-x-1/2 -translate-y-1/2 cursor-pointer text-purple-primary ${(fileAttachments.size >= 3 || audioUrl) && "cursor-not-allowed opacity-50"}`}
+            size={23}
+            onClick={handleToggleAttachButton}
+          />
+        </div>
 
         <div
           className={`absolute right-14 top-1/2 -translate-x-1/2 -translate-y-1/2 ${fileAttachments.size && "cursor-not-allowed opacity-50"}`}

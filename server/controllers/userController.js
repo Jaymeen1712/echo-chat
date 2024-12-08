@@ -200,6 +200,8 @@ const searchUsers_get = async (req, res) => {
         $project: {
           name: 1,
           image: 1,
+          isActive: 1,
+          lastActive: 1,
         },
       },
     ]);

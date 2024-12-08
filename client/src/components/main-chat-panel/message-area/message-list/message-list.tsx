@@ -1,3 +1,4 @@
+import { AnimatePresence, motion } from "framer-motion";
 import { MdOutlineKeyboardArrowDown } from "react-icons/md";
 import MessageItem from "./message-item";
 import useMessageListController from "./message-list-controller";
@@ -34,16 +35,23 @@ const MessageList = () => {
           ))}
       </div>
 
-      {showScrollButton && (
-        <div className="absolute bottom-10 left-1/2 z-30 -translate-x-1/2">
-          <button
-            onClick={scrollToBottom}
-            className="cursor-pointer rounded-full bg-purple-dark-1 p-1 text-white-primary shadow-2xl hover:bg-opacity-95"
+      <AnimatePresence>
+        {showScrollButton && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute bottom-10 left-1/2 z-30 -translate-x-1/2"
           >
-            <MdOutlineKeyboardArrowDown size={24} />
-          </button>
-        </div>
-      )}
+            <button
+              onClick={scrollToBottom}
+              className="cursor-pointer rounded-full bg-purple-dark-1 p-1 text-white-primary shadow-2xl hover:bg-opacity-95"
+            >
+              <MdOutlineKeyboardArrowDown size={24} />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
