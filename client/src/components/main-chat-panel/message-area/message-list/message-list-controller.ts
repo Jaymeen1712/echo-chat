@@ -33,8 +33,33 @@ const useMessageListController = () => {
 
   const scrollToBottom = () => {
     if (messageListContainerRef.current) {
-      messageListContainerRef.current.scrollTop =
-        messageListContainerRef.current.scrollHeight;
+      const container = messageListContainerRef.current;
+      const distanceToScroll = container.scrollHeight - container.scrollTop; // Distance left to scroll
+      const totalScrollableHeight = container.scrollHeight; // Total scrollable height
+
+      // Calculate scroll duration dynamically
+      const baseDuration = 500; // Base scroll time for full scroll
+      const scrollDuration =
+        (distanceToScroll / totalScrollableHeight) * baseDuration;
+
+      const startTime = performance.now();
+      const startScrollPosition = container.scrollTop;
+      const targetScrollPosition = container.scrollHeight;
+
+      const animateScroll = (currentTime: number) => {
+        const elapsedTime = currentTime - startTime;
+        const progress = Math.min(elapsedTime / scrollDuration, 1);
+
+        container.scrollTop =
+          startScrollPosition +
+          (targetScrollPosition - startScrollPosition) * progress;
+
+        if (progress < 1) {
+          window.requestAnimationFrame(animateScroll);
+        }
+      };
+
+      window.requestAnimationFrame(animateScroll);
     }
   };
 
