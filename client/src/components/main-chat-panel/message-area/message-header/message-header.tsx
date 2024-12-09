@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { IoCallOutline } from "react-icons/io5";
 import { MdDelete } from "react-icons/md";
+import ReactPlayer from "react-player";
 import useMessageHeaderController from "./message-header-controller";
 
 const MessageHeader = () => {
@@ -15,13 +16,14 @@ const MessageHeader = () => {
     conversationActionContainerRef,
     handleDeleteConversation,
     conversationActionToggleContainerRef,
+    localStream,
   } = useMessageHeaderController();
 
   const slideUpAnimation = {
-    hidden: { opacity: 0 }, // Start from below with opacity 0
-    visible: { opacity: 1 }, // Final position and full opacity
-    exit: { opacity: 0 }, // Animate back down on exit
-    transition: { duration: 0.3, ease: "easeInOut" },
+    hidden: { opacity: 0, y: 0, scale: 0.25 }, // Start below with smaller size
+    visible: { opacity: 1, y: 60, scale: 1 }, // Full opacity and normal size
+    exit: { opacity: 0, y: 0, scale: 0.25 }, // Animate back down and shrink
+    transition: { duration: 0.3, ease: [0.4, 0, 0.2, 1] }, // Custom easing
   };
 
   return (
@@ -41,7 +43,7 @@ const MessageHeader = () => {
         <IoCallOutline
           className="cursor-pointer"
           size={32}
-          // onClick={handleCallClick}
+          onClick={handleCallClick}
         />
         <div ref={conversationActionToggleContainerRef}>
           <BsThreeDotsVertical
@@ -75,6 +77,10 @@ const MessageHeader = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <div className="hidden">
+        <ReactPlayer url={localStream} playing muted />
+      </div>
     </div>
   );
 };

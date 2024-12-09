@@ -14,6 +14,8 @@ const useMessageAreaController = () => {
     patchActiveMessagesIsDeliveredField,
     currentUserData,
     setActiveMessages,
+    callStatus,
+    localCallStream,
   } = useAppStore();
 
   const [isSenderTyping, setIsSenderTyping] = useState(false);
@@ -30,6 +32,15 @@ const useMessageAreaController = () => {
         await peerConnection.setRemoteDescription(
           new RTCSessionDescription(offer),
         );
+
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: true,
+        });
+
+        stream.getTracks().forEach((track) => {
+          peerConnection.addTrack(track, stream);
+        });
+
         const answer = await peerConnection.createAnswer();
         await peerConnection.setLocalDescription(answer);
         socketClient.emit("send-answer", { senderUserId, answer });
@@ -56,6 +67,13 @@ const useMessageAreaController = () => {
       senderUserId: senderDetails.userId,
     });
   }, [peerConnection, socketClient, receivedOffer]);
+
+  const handleEndCall = () => {
+    peerConnection?.close();
+    // localStream?.getTracks().forEach((track) => track.stop());
+    // setLocalStream(null);
+    toast.info("Call ended.");
+  };
 
   useEffect(() => {
     if (!activeChat?.conversationId || !currentUserData?._id) return;
@@ -123,6 +141,9 @@ const useMessageAreaController = () => {
     handleDeclineCall,
     handleAcceptCall,
     isSenderTyping,
+    callStatus,
+    handleEndCall,
+    localCallStream,
   };
 };
 

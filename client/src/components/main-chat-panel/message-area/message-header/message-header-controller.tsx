@@ -3,6 +3,7 @@ import { useAppStore } from "@/store";
 import { CallingSenderReceiverDetails } from "@/types";
 import { convertDateIntoTimeAgoFormat } from "@/utils";
 import { peerConnection, socketClient } from "@/wrapper";
+import console from "console";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "react-toastify";
 
@@ -13,13 +14,14 @@ const useMessageHeaderController = () => {
     setIsContactInfoContainerOpen,
     setActiveChat,
     deleteSubSidebarChat,
+    setLocalCallStream,
   } = useAppStore();
 
   const [
     isConversationActionContainerOpen,
     setIsConversationActionContainerOpen,
   ] = useState(false);
-  const [localStream, setLocalStream] = useState<MediaStream | null>(null);
+  const [localStream, setLocalStream] = useState<MediaStream>();
 
   const conversationActionContainerRef = useRef<HTMLDivElement | null>(null);
   const conversationActionToggleContainerRef = useRef<HTMLDivElement | null>(
@@ -87,7 +89,7 @@ const useMessageHeaderController = () => {
   );
 
   const handleCallClick = useCallback(async () => {
-    if (!activeChat) return;
+    if (!activeChat || !peerConnection) return;
 
     const { userId: targetUserId } = activeChat;
 
@@ -99,10 +101,10 @@ const useMessageHeaderController = () => {
     try {
       // Get user media (audio only)
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      setLocalStream(stream);
 
       stream.getTracks().forEach((track) => {
         peerConnection.addTrack(track, stream);
+        setLocalStream(stream);
       });
 
       if (!currentUserData) {
@@ -111,7 +113,6 @@ const useMessageHeaderController = () => {
       }
 
       const { _id: userId, name } = currentUserData;
-
       // Initiate call by creating an offer
       await createOffer({
         senderUserDetails: {
@@ -121,6 +122,18 @@ const useMessageHeaderController = () => {
         },
         targetUserId,
       });
+
+      // Sending offer again for negotiation
+      setTimeout(async () => {
+        await createOffer({
+          senderUserDetails: {
+            name,
+            userId,
+            image: currentUserData.image,
+          },
+          targetUserId,
+        });
+      }, 200);
     } catch (error) {
       console.error("Error accessing media devices:", error);
     }
@@ -180,6 +193,20 @@ const useMessageHeaderController = () => {
   //   };
   // }, [localStream, peerConnection]);
 
+  // const handleGetMediaStream = useCallback(async () => {
+  //   if (!peerConnection) return;
+  //   const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+  //   stream.getTracks().forEach((track) => {
+  //     peerConnection.addTrack(track, stream);
+  //     setLocalStream(stream);
+  //   });
+  // }, [peerConnection]);
+
+  // useEffect(() => {
+  //   handleGetMediaStream();
+  // }, [handleGetMediaStream]);
+
   return {
     activeChat,
     handleCallClick,
@@ -189,7 +216,8 @@ const useMessageHeaderController = () => {
     handleActionButtonClick,
     conversationActionContainerRef,
     handleDeleteConversation,
-    conversationActionToggleContainerRef
+    conversationActionToggleContainerRef,
+    localStream,
   };
 };
 

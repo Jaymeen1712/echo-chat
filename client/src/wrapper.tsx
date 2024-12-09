@@ -12,7 +12,14 @@ interface WrapperProps {
 export const socketClient = io(import.meta.env.VITE_SOCKET_URL);
 
 export const peerConnection = new RTCPeerConnection({
-  iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+  iceServers: [
+    {
+      urls: [
+        "stun:stun.l.google.com:19302",
+        "stun:global.stun.twilio.com:3478",
+      ],
+    },
+  ],
 });
 
 const Wrapper: React.FC<WrapperProps> = ({ children }) => {
@@ -25,6 +32,8 @@ const Wrapper: React.FC<WrapperProps> = ({ children }) => {
     setOnlineUsers,
     onlineUsers,
     patchSubSidebarChatsIsActiveStates,
+    setCallStatus,
+    setLocalCallStream,
   } = useAppStore();
 
   useEffect(() => {
@@ -45,7 +54,7 @@ const Wrapper: React.FC<WrapperProps> = ({ children }) => {
   }, [onlineUsers]);
 
   useEffect(() => {
-    if (!currentUserData) return;
+    if (!currentUserData || !peerConnection) return;
 
     const { _id: currentUserId } = currentUserData;
     socketClient.on(
@@ -70,23 +79,57 @@ const Wrapper: React.FC<WrapperProps> = ({ children }) => {
       if (currentUserId !== targetUserId) return;
 
       if (candidate) {
+        console.log("🚀 ~ socketClient.on ~ candidate:", candidate);
+        console.log("candidate received to callee");
         setReceivedCandidate(candidate);
+        peerConnection.addIceCandidate(new RTCIceCandidate(receivedCandidate));
       }
     });
   }, [socketClient, peerConnection, currentUserData]);
 
   useEffect(() => {
-    if (peerConnection.remoteDescription) {
-      peerConnection.addIceCandidate(new RTCIceCandidate(receivedCandidate));
+    if (!peerConnection) return;
+
+    try {
+      if (peerConnection.remoteDescription) {
+        peerConnection.addIceCandidate(new RTCIceCandidate(receivedCandidate));
+      }
+    } catch (error) {
+      console.error("Error adding received ICE candidate", error);
     }
   }, [peerConnection, receivedCandidate]);
 
+  // useEffect(() => {
+  //   if (!activeChat || !peerConnection) return;
+
+  //   const { userId: targetUserId } = activeChat;
+
+  //   if (!targetUserId) return;
+
+  //   //  ICE candidate handling
+  //   const candidate = new RTCIceCandidate();
+
+  //   peerConnection.onicecandidate = (event) => {
+  //     if (event.candidate) {
+  //       socketClient.emit("send-ice-candidate", {
+  //         candidate: candidate,
+  //         targetUserId,
+  //       });
+  //     }
+  //   };
+  // }, [peerConnection, socketClient, activeChat]);
+
   useEffect(() => {
-    if (!activeChat) return;
+    if (!activeChat || !peerConnection) return;
 
     const { userId: targetUserId } = activeChat;
 
     if (!targetUserId) return;
+
+    peerConnection.addEventListener("track", (ev) => {
+      const streams = ev.streams;
+      setLocalCallStream(streams[0]);
+    });
 
     //  ICE candidate handling
     peerConnection.onicecandidate = (event) => {
@@ -99,44 +142,12 @@ const Wrapper: React.FC<WrapperProps> = ({ children }) => {
     };
   }, [peerConnection, socketClient, activeChat]);
 
-  // Listen for remote stream
-  peerConnection.ontrack = (event) => {
-    const remoteAudio = document.getElementById(
-      "remote-audio",
-    ) as HTMLAudioElement;
-
-    if (remoteAudio) {
-      remoteAudio.srcObject = event.streams[0];
-    } else {
-      console.error("Remote audio element not found.");
-    }
-  };
-
-  peerConnection.oniceconnectionstatechange = () => {
-    console.log("ICE Connection State:", peerConnection.iceConnectionState);
-
-    if (
-      peerConnection.iceConnectionState === "connected" ||
-      peerConnection.iceConnectionState === "completed"
-    ) {
-      console.log("ICE connection established.");
-    }
-  };
-
   peerConnection.onconnectionstatechange = () => {
     console.log("Connection State:", peerConnection.connectionState);
-
     if (peerConnection.connectionState === "connected") {
-      console.log("Peer-to-peer connection established!");
+      // Peer-to-peer connection is established
+      setCallStatus(peerConnection.connectionState);
     }
-  };
-
-  peerConnection.ontrack = (event) => {
-    console.log("Remote track received:", event.streams[0]);
-  };
-
-  peerConnection.onsignalingstatechange = () => {
-    console.log("Signaling State:", peerConnection.signalingState);
   };
 
   return (

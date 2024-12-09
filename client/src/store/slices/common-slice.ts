@@ -52,6 +52,10 @@ export interface CommonSlice {
   setActiveContactFileInfo: (
     data: ActiveContactFileInfoType | undefined,
   ) => void;
+  callStatus: RTCPeerConnectionState;
+  setCallStatus: (data: RTCPeerConnectionState) => void;
+  localCallStream: MediaStream | null;
+  setLocalCallStream: (data: MediaStream | null) => void;
 
   // Live user socket types
   onlineUsers: string[];
@@ -277,7 +281,17 @@ export const createCommonSlice: StateCreator<CommonSlice> = (set, get) => ({
     set({
       activeContactFileInfo,
     }),
-
+  callStatus: "closed",
+  setCallStatus: (callStatus) =>
+    set({
+      callStatus,
+    }),
+  localCallStream: null,
+  setLocalCallStream: (localCallStream) =>
+    set({
+      localCallStream,
+    }),
+    
   // Live users socket states
   onlineUsers: [],
   setOnlineUsers: (onlineUsers) =>

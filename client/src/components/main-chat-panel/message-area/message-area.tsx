@@ -1,4 +1,5 @@
 import { IoCallOutline } from "react-icons/io5";
+import ReactPlayer from "react-player";
 import useMessageAreaController from "./message-area-controller";
 import MessageHeader from "./message-header";
 import MessageInput from "./message-input";
@@ -11,39 +12,69 @@ const MessageArea = () => {
     handleDeclineCall,
     handleAcceptCall,
     isSenderTyping,
+    callStatus,
+    handleEndCall,
+    localCallStream,
   } = useMessageAreaController();
 
   return (
     <div className="flex h-full flex-col px-4">
       {receivedOffer ? (
-        <div className="flex h-full w-full items-center justify-center">
-          <div className="flex flex-col items-center justify-center gap-y-6">
-            <IoCallOutline className="cursor-pointer" size={70} />
-            <h1 className="text-lg">Incoming call from</h1>
-            <img
-              src={receivedOffer?.senderDetails.image}
-              alt="incoming-user-img"
-              className="flex h-[180px] w-[180px] items-center justify-center rounded-full border bg-white-primary"
-            />
-            <h1 className="text-2xl">{receivedOffer?.senderDetails.name}</h1>
-            <div className="flex gap-x-4">
-              <button
-                className="rounded-xl bg-red-600 px-4 py-2 text-white-primary transition hover:bg-red-700"
-                onClick={handleDeclineCall}
-              >
-                Decline
-              </button>
-              <button
-                className="rounded-xl bg-green-600 px-4 py-2 text-white-primary transition hover:bg-green-700"
-                onClick={handleAcceptCall}
-              >
-                Accept
-              </button>
+        <>
+          {callStatus === "connected" ? (
+            <div className="flex h-full w-full items-center justify-center">
+              <div className="flex flex-col items-center justify-center gap-y-6">
+                <IoCallOutline className="cursor-pointer" size={70} />
+                <h1 className="text-lg">Ongoing call</h1>
+                <img
+                  src={receivedOffer?.senderDetails.image}
+                  alt="incoming-user-img"
+                  className="flex h-[180px] w-[180px] items-center justify-center rounded-full border bg-white-primary"
+                />
+                <h1 className="text-2xl">
+                  {receivedOffer?.senderDetails.name}
+                </h1>
+                <div className="flex gap-x-4">
+                  <button
+                    className="rounded-xl bg-red-600 px-4 py-2 text-white-primary transition hover:bg-red-700"
+                    onClick={handleEndCall}
+                  >
+                    Disconnect
+                  </button>
+                </div>
+              </div>
             </div>
-          </div>
-
-          <audio id="remote-audio" autoPlay></audio>
-        </div>
+          ) : (
+            <div className="flex h-full w-full items-center justify-center">
+              <div className="flex flex-col items-center justify-center gap-y-6">
+                <IoCallOutline className="cursor-pointer" size={70} />
+                <h1 className="text-lg">Incoming call from</h1>
+                <img
+                  src={receivedOffer?.senderDetails.image}
+                  alt="incoming-user-img"
+                  className="flex h-[180px] w-[180px] items-center justify-center rounded-full border bg-white-primary"
+                />
+                <h1 className="text-2xl">
+                  {receivedOffer?.senderDetails.name}
+                </h1>
+                <div className="flex gap-x-4">
+                  <button
+                    className="rounded-xl bg-red-600 px-4 py-2 text-white-primary transition hover:bg-red-700"
+                    onClick={handleDeclineCall}
+                  >
+                    Decline
+                  </button>
+                  <button
+                    className="rounded-xl bg-green-600 px-4 py-2 text-white-primary transition hover:bg-green-700"
+                    onClick={handleAcceptCall}
+                  >
+                    Accept
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </>
       ) : (
         <>
           {activeChat ? (
@@ -70,6 +101,11 @@ const MessageArea = () => {
             </div>
           )}
         </>
+      )}
+      {localCallStream && (
+        <div className="hidden">
+          <ReactPlayer id="remote-audio" url={localCallStream} playing />
+        </div>
       )}
     </div>
   );

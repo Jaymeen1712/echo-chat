@@ -58,12 +58,12 @@ io.on("connection", (socket) => {
 
     // Notify all clients about the updated user list
     io.emit("online-users", Object.keys(clients));
-    console.log("🚀 ~ socket.on register ~ clients:", clients);
+    // console.log("🚀 ~ socket.on register ~ clients:", clients);
   });
 
   // Handle disconnection
   socket.on("disconnect", () => {
-    console.log(`User disconnected: ${socket.id}`);
+    // console.log(`User disconnected: ${socket.id}`);
     const disconnectedUserId = Object.keys(clients).find(
       (key) => clients[key] === socket.id
     );
@@ -73,7 +73,7 @@ io.on("connection", (socket) => {
       delete clients[disconnectedUserId];
     }
     io.emit("online-users", Object.keys(clients));
-    console.log("🚀 ~ socket.on disconnect ~ clients:", clients);
+    // console.log("🚀 ~ socket.on disconnect ~ clients:", clients);
   });
 
   // Conversations
@@ -120,6 +120,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("send-ice-candidate", ({ targetUserId, candidate }) => {
+    console.log("🚀 ~ socket.on ~ candidate:", candidate);
     console.log(`ICE Candidate from ${socket.id} to ${targetUserId}`);
     const targetUserSocketId = clients[targetUserId];
 
