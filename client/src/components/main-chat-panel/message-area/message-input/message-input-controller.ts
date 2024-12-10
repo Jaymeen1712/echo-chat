@@ -305,12 +305,21 @@ const useMessageInputController = () => {
     if (updateConversationData) {
       const updatedConversation = updateConversationData.data.data;
 
+      const { participants } = updatedConversation;
+
       patchSubSidebarChats(updatedConversation);
+
+      if (!currentUserData) return;
+      const { _id } = currentUserData;
+
+      const otherParticipant = participants.filter(
+        (participant: { _id: string }) => participant._id !== _id,
+      );
 
       // Handle socket
       socketClient.emit("conversation-updated", {
-        conversation: updatedConversation,
-        receiverId: activeChat?.userId,
+        conversationId: updatedConversation._id,
+        receiverId: otherParticipant[0]._id,
       });
     }
   }, [updateConversationData]);
