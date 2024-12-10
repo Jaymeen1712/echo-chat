@@ -9,6 +9,10 @@ const SettingsSubSidebar = () => {
       className="flex flex-col px-2"
     >
       <h1 className="text-xl">Settings</h1>
+
+      <div className="flex flex-1 items-center justify-center text-2xl">
+        Coming soon
+      </div>
     </div>
   );
 };

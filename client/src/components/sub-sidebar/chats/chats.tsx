@@ -52,7 +52,7 @@ const ChatsSubSidebar: React.FC<ChatsSubSidebarProps> = ({ subSidebarKey }) => {
             onClick={handleClickNewChat}
           />
         </div>
-        <ChatHeader />
+        {/* <ChatHeader /> */}
         <ChatList
           handleChatClick={handleChatClick}
           chatList={subSidebarChats}

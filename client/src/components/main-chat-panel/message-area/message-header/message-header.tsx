@@ -1,6 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { BsThreeDotsVertical } from "react-icons/bs";
-import { IoCallOutline } from "react-icons/io5";
 import { MdDelete } from "react-icons/md";
 import useMessageHeaderController from "./message-header-controller";
 
@@ -38,11 +37,11 @@ const MessageHeader = () => {
 
       <div className="flex gap-x-6 opacity-50">
         {/* <LuSearch className="cursor-pointer" size={32} /> */}
-        <IoCallOutline
+        {/* <IoCallOutline
           className="cursor-pointer"
           size={32}
           // onClick={handleCallClick}
-        />
+        /> */}
         <div ref={conversationActionToggleContainerRef}>
           <BsThreeDotsVertical
             className="cursor-pointer"
