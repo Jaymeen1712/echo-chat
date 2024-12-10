@@ -21,8 +21,8 @@ const useMessageListController = () => {
   const {
     refetch: getAllMessagesRefetch,
     data: getAllMessagesData,
-    isLoading: isGetAllMessagesLoading,
     dataUpdatedAt: getAllMessagesDataUpdated,
+    isFetching: isGetAllMessagesLoading,
   } = useGetAllMessagesQuery({
     conversationId: activeChat?.conversationId || "",
   });
