@@ -56,6 +56,7 @@ const ChatsSubSidebar: React.FC<ChatsSubSidebarProps> = ({ subSidebarKey }) => {
         <ChatList
           handleChatClick={handleChatClick}
           chatList={subSidebarChats}
+          isUserList={false}
         />
       </div>
 
@@ -84,6 +85,7 @@ const ChatsSubSidebar: React.FC<ChatsSubSidebarProps> = ({ subSidebarKey }) => {
               <ChatList
                 handleChatClick={handleChatClick}
                 chatList={subSidebarUsers}
+                isUserList={true}
               />
             </motion.div>
           </motion.div>

@@ -14,6 +14,7 @@ const useMessageAreaController = () => {
     patchActiveMessagesIsDeliveredField,
     currentUserData,
     setActiveMessages,
+    subSidebarChats,
   } = useAppStore();
 
   const [isSenderTyping, setIsSenderTyping] = useState(false);
@@ -123,6 +124,7 @@ const useMessageAreaController = () => {
     handleDeclineCall,
     handleAcceptCall,
     isSenderTyping,
+    subSidebarChats,
   };
 };
 
