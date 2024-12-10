@@ -38,7 +38,7 @@ const useChatsSubSideController = () => {
   const {
     data: searchUserData,
     refetch: searchUserRefetch,
-    isLoading: isSearchUserLoading,
+    isFetching: isSearchUserLoading,
     dataUpdatedAt: isSearchUserDataUpdated,
   } = useSearchUserQuery({
     query: debouncedSearchQuery || "",
@@ -47,7 +47,7 @@ const useChatsSubSideController = () => {
   const {
     data: getAllConversationsData,
     refetch: getAllConversationsRefetch,
-    isLoading: isGetAllConversationsLoading,
+    isFetching: isGetAllConversationsLoading,
     dataUpdatedAt: isGetAllConversationDataUpdated,
   } = useGetAllConversationsQuery();
   //   {
@@ -249,8 +249,8 @@ const useChatsSubSideController = () => {
   return {
     handleClickNewChat,
     isNewChatOpen,
-    isSearchUserLoading,
     handleChatClick,
+    isSearchUserLoading,
     isGetAllConversationsLoading,
     subSidebarUsers,
     subSidebarChats,

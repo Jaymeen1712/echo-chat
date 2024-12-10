@@ -11,7 +11,11 @@ const SettingsSubSidebar = () => {
       <h1 className="text-xl">Settings</h1>
 
       <div className="flex flex-1 items-center justify-center text-2xl">
-        Coming soon
+        <img
+          src={"/coming-soon.png"}
+          className="h-[180px] w-[180px]"
+          alt="coming-soon"
+        />
       </div>
     </div>
   );

@@ -11,6 +11,7 @@ const MessageArea = () => {
     handleDeclineCall,
     handleAcceptCall,
     isSenderTyping,
+    subSidebarChats,
   } = useMessageAreaController();
 
   return (
@@ -65,9 +66,23 @@ const MessageArea = () => {
               <MessageInput />
             </>
           ) : (
-            <div className="flex h-full items-center justify-center">
-              <h1 className="text-2xl">Select a chat</h1>
-            </div>
+            <>
+              {subSidebarChats.length ? (
+                <div className="flex h-full w-full flex-1 flex-col items-center justify-center gap-y-4">
+                  <img
+                    src={"/select-chat-container.png"}
+                    className="h-[180px] w-[180px]"
+                    alt=""
+                  />
+                  <div className="flex flex-col items-center gap-y-2 text-lg">
+                    <h1>Welcome back!</h1>
+                    <div className="text-2xl font-semibold text-purple-dark-1">
+                      Select a chat to get started
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+            </>
           )}
         </>
       )}

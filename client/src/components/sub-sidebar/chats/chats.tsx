@@ -18,6 +18,8 @@ const ChatsSubSidebar: React.FC<ChatsSubSidebarProps> = ({ subSidebarKey }) => {
     handleChatClick,
     subSidebarUsers,
     subSidebarChats,
+    isSearchUserLoading,
+    isGetAllConversationsLoading,
   } = useChatsSubSideController();
 
   const slideVariants = {
@@ -56,6 +58,8 @@ const ChatsSubSidebar: React.FC<ChatsSubSidebarProps> = ({ subSidebarKey }) => {
         <ChatList
           handleChatClick={handleChatClick}
           chatList={subSidebarChats}
+          isUserList={false}
+          isLoading={isGetAllConversationsLoading}
         />
       </div>
 
@@ -84,6 +88,8 @@ const ChatsSubSidebar: React.FC<ChatsSubSidebarProps> = ({ subSidebarKey }) => {
               <ChatList
                 handleChatClick={handleChatClick}
                 chatList={subSidebarUsers}
+                isUserList={true}
+                isLoading={isSearchUserLoading}
               />
             </motion.div>
           </motion.div>

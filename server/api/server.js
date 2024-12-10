@@ -11,6 +11,9 @@ const {
 } = require("../controllers/userController");
 const message_controller = require("../controllers/messageController");
 const { clients } = require("../utils/utils");
+const {
+  getPopulatedConversation,
+} = require("../utils/getPopulatedConversation");
 
 const port = process.env.PORT || 4000;
 
@@ -77,9 +80,13 @@ io.on("connection", (socket) => {
   });
 
   // Conversations
-  socket.on("conversation-updated", async ({ conversation, receiverId }) => {
+  socket.on("conversation-updated", async ({ conversationId, receiverId }) => {
+    const populatedConversation = await getPopulatedConversation(
+      conversationId
+    );
+
     io.emit("update-conversation", {
-      conversation,
+      conversation: populatedConversation,
       receiverId,
     });
   });

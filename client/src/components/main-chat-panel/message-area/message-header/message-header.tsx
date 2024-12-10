@@ -17,9 +17,9 @@ const MessageHeader = () => {
   } = useMessageHeaderController();
 
   const slideUpAnimation = {
-    hidden: { opacity: 0 }, // Start from below with opacity 0
-    visible: { opacity: 1 }, // Final position and full opacity
-    exit: { opacity: 0 }, // Animate back down on exit
+    hidden: { opacity: 0, scale: 0.2, x: 60, y: 0 }, // Start from below with opacity 0
+    visible: { opacity: 1, scale: 1, y: 60, x: 0 }, // Final position and full opacity
+    exit: { opacity: 0, scale: 0.2, x: 60, y: 0 }, // Animate back down on exit
     transition: { duration: 0.3, ease: "easeInOut" },
   };
 

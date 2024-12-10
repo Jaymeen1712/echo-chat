@@ -14,26 +14,45 @@ const MessageList = () => {
 
   return (
     <div className="relative flex flex-1 flex-col-reverse overflow-y-auto py-6">
-      <div
-        className="container flex flex-col-reverse gap-y-4 overflow-y-auto"
-        ref={messageListContainerRef}
-      >
-        {!isGetAllMessagesLoading &&
-          activeMessages.map(({ date, label, messages }) => (
-            <div key={date}>
-              <h1 className="mb-2 text-center">{label}</h1>
-              <div className="flex flex-col gap-y-2">
-                {messages.map((message) => (
-                  <MessageItem
-                    type={message.type}
-                    message={message}
-                    key={message._id}
-                  />
-                ))}
+      {!isGetAllMessagesLoading ? (
+        <>
+          {activeMessages.length ? (
+            <div
+              className="container flex flex-col-reverse gap-y-4 overflow-y-auto"
+              ref={messageListContainerRef}
+            >
+              {activeMessages.map(({ date, label, messages }) => (
+                <div key={date}>
+                  <h1 className="mb-2 text-center">{label}</h1>
+                  <div className="flex flex-col gap-y-2">
+                    {messages.map((message) => (
+                      <MessageItem
+                        type={message.type}
+                        message={message}
+                        key={message._id}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="flex h-full w-full flex-1 flex-col items-center justify-center gap-y-4">
+              <img
+                src={"/empty-message-container.png"}
+                className="h-[180px] w-[180px]"
+                alt=""
+              />
+              <div className="flex flex-col items-center gap-y-2 text-lg">
+                <h1>No messages yet.</h1>
+                <div className="text-2xl font-semibold text-purple-dark-1">
+                  Your messages will appear here
+                </div>
               </div>
             </div>
-          ))}
-      </div>
+          )}
+        </>
+      ) : null}
 
       <AnimatePresence>
         {showScrollButton && (
