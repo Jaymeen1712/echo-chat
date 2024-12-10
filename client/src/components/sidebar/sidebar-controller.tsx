@@ -45,7 +45,8 @@ const useSidebarController = () => {
 
   const handleLogoutUser = useCallback(async () => {
     Cookies.remove(USER_ACCESS_KEY.TOKEN);
-    window.location.href = "/login";
+    window.location.reload();
+    // window.location.href = "/login";
   }, []);
 
   return {
