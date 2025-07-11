@@ -1,5 +1,6 @@
 import { ChatType } from "@/components/sub-sidebar/chats/chats-controller";
 import { handleGetAvatarAlternativeURL } from "@/utils";
+import React, { memo, useCallback } from "react";
 import useChatItemController from "./chat-item-controller";
 
 interface ChatItemProps {
@@ -7,7 +8,7 @@ interface ChatItemProps {
   handleChatClick: (data: ChatType) => void;
 }
 
-const ChatItem: React.FC<ChatItemProps> = ({ chat, handleChatClick }) => {
+const ChatItem: React.FC<ChatItemProps> = memo(({ chat, handleChatClick }) => {
   const {
     isCurrentChatItemActive,
     isCurrentUserLastMessageOwner,
@@ -18,10 +19,15 @@ const ChatItem: React.FC<ChatItemProps> = ({ chat, handleChatClick }) => {
 
   const { name, conversationId, isActive, unreadMessagesCount } = chat;
 
+  // Memoize the click handler to prevent unnecessary re-renders
+  const handleClick = useCallback(() => {
+    handleChatClick(chat);
+  }, [handleChatClick, chat]);
+
   return (
     <div
       className={`flex cursor-pointer items-center justify-center gap-x-4 rounded-xl px-2 py-3 text-sm transition-all hover:bg-purple-primary/10 ${isCurrentChatItemActive && "!bg-purple-primary/20"}`}
-      onClick={() => handleChatClick(chat)}
+      onClick={handleClick}
     >
       <div className="avatar">
         <img
@@ -69,6 +75,8 @@ const ChatItem: React.FC<ChatItemProps> = ({ chat, handleChatClick }) => {
       </div>
     </div>
   );
-};
+});
+
+ChatItem.displayName = "ChatItem";
 
 export default ChatItem;

@@ -1,4 +1,5 @@
 import moment from "moment";
+import React, { memo, useCallback } from "react";
 import { IoMdDownload } from "react-icons/io";
 import { IoCheckmark, IoCheckmarkDone } from "react-icons/io5";
 import { toast } from "react-toastify";
@@ -9,11 +10,10 @@ interface MessageItemProps {
   message: SingleMessageWithTypeType;
 }
 
-const MessageItem: React.FC<MessageItemProps> = ({ type, message }) => {
+const MessageItem: React.FC<MessageItemProps> = memo(({ type, message }) => {
   const { sender, createdAt, isDelivered, isSeen } = message;
-  const { name } = sender;
 
-  const handleDownload = (url: string, name: string) => {
+  const handleDownload = useCallback((url: string, name: string) => {
     try {
       const anchor = document.createElement("a");
       anchor.href = url;
@@ -24,7 +24,7 @@ const MessageItem: React.FC<MessageItemProps> = ({ type, message }) => {
       console.error("Error downloading the file:", error);
       toast.error("Failed to download the file. Please try again.");
     }
-  };
+  }, []);
 
   return (
     <div
@@ -172,6 +172,8 @@ const MessageItem: React.FC<MessageItemProps> = ({ type, message }) => {
       </div>
     </div>
   );
-};
+});
+
+MessageItem.displayName = "MessageItem";
 
 export default MessageItem;

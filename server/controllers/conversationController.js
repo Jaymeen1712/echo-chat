@@ -6,6 +6,7 @@ const {
 } = require("../utils/uniqueConversationKey");
 const { handleGetResponse } = require("../utils/utils");
 const Message = require("../models/message");
+const { getConversationsAggregation } = require("../utils/dbOptimization");
 
 module.exports.conversation_post = async (req, res) => {
   try {
@@ -45,118 +46,17 @@ module.exports.conversation_post = async (req, res) => {
 module.exports.conversation_get = async (req, res) => {
   try {
     const user = req.user;
-    const userId = new ObjectId(user.userId);
+    const userId = user.userId;
 
-    // const conversations = await Conversation.find(
-    //   {
-    //     participants: userId,
-    //   },
-    //   {
-    //     createdAt: true,
-    //     updatedAt: true,
-    //   }
-    // )
-    //   .populate("participants", ["name", "image", "isActive", "lastActive"])
-    //   .populate("lastMessage", ["content"])
-    //   .populate({
-    //     path: "lastMessage",
-    //     populate: {
-    //       path: "sender",
-    //       select: ["_id"],
-    //     },
-    //   })
-    //   .sort({ updatedAt: -1 });
+    // Get pagination parameters
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const skip = (page - 1) * limit;
 
-    const conversations = await Conversation.aggregate([
-      {
-        $match: {
-          participants: userId, // Match conversations that include the user
-        },
-      },
-      {
-        $lookup: {
-          from: "messages", // Reference the "messages" collection
-          let: { conversationId: "$_id" },
-          pipeline: [
-            {
-              $match: {
-                $expr: {
-                  $and: [
-                    { $eq: ["$conversation", "$$conversationId"] }, // Match messages in the conversation
-                    { $eq: ["$isSeen", false] }, // Only count unseen messages
-                    { $ne: ["$sender", userId] }, // Exclude messages sent by the user
-                  ],
-                },
-              },
-            },
-            { $count: "unreadCount" }, // Count the number of unseen messages
-          ],
-          as: "unreadMessages",
-        },
-      },
-      {
-        $addFields: {
-          unreadMessagesCount: {
-            $ifNull: [{ $arrayElemAt: ["$unreadMessages.unreadCount", 0] }, 0], // Set unread count or 0 if none
-          },
-        },
-      },
-      {
-        $lookup: {
-          from: "users",
-          localField: "participants",
-          foreignField: "_id",
-          as: "participants",
-        },
-      },
-      {
-        $lookup: {
-          from: "messages",
-          localField: "lastMessage",
-          foreignField: "_id",
-          as: "lastMessageDetails",
-        },
-      },
-      {
-        $unwind: {
-          path: "$lastMessageDetails",
-          preserveNullAndEmptyArrays: true,
-        },
-      },
-      {
-        $lookup: {
-          from: "users",
-          localField: "lastMessageDetails.sender",
-          foreignField: "_id",
-          as: "lastMessageDetails.senderDetails",
-        },
-      },
-      {
-        $project: {
-          participants: {
-            _id: 1,
-            name: 1,
-            image: 1,
-            isActive: 1,
-            lastActive: 1,
-          },
-          lastMessage: {
-            $mergeObjects: [
-              "$lastMessageDetails",
-              {
-                sender: {
-                  $arrayElemAt: ["$lastMessageDetails.senderDetails", 0],
-                },
-              },
-            ],
-          },
-          unreadMessagesCount: 1,
-          createdAt: 1,
-          updatedAt: 1,
-        },
-      },
-      { $sort: { updatedAt: -1 } },
-    ]);
+    // Use optimized aggregation pipeline
+    const conversations = await Conversation.aggregate(
+      getConversationsAggregation(userId, limit, skip)
+    );
 
     if (!conversations || conversations.length === 0) {
       return res.status(202).json(

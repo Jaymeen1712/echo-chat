@@ -1,24 +1,81 @@
+/* Import Design System */
+@import "./styles/variables.css";
+@import "./styles/responsive.css";
+@import "./styles/accessibility.css";
+@import "./styles/animations.css";
+
+/* Base Styles */
 html {
   scroll-behavior: smooth;
+  font-size: 16px; /* Base font size for rem calculations */
 }
 
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: var(--leading-normal);
+}
+
+/* Avatar Component - Enhanced */
 .avatar {
-  min-width: 60px;
-  width: 60px;
-  min-height: 60px;
-  height: 60px;
-  border-radius: 12px;
+  min-width: var(--avatar-size-lg);
+  width: var(--avatar-size-lg);
+  min-height: var(--avatar-size-lg);
+  height: var(--avatar-size-lg);
+  border-radius: var(--radius-xl);
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #ffffff;
+  background: var(--bg-primary);
+  contain: layout style paint;
+  position: relative;
+  transition: var(--transition-fast);
+}
+
+.avatar--sm {
+  min-width: var(--avatar-size-sm);
+  width: var(--avatar-size-sm);
+  min-height: var(--avatar-size-sm);
+  height: var(--avatar-size-sm);
+}
+
+.avatar--md {
+  min-width: var(--avatar-size-md);
+  width: var(--avatar-size-md);
+  min-height: var(--avatar-size-md);
+  height: var(--avatar-size-md);
+}
+
+.avatar--xl {
+  min-width: var(--avatar-size-xl);
+  width: var(--avatar-size-xl);
+  min-height: var(--avatar-size-xl);
+  height: var(--avatar-size-xl);
 }
 
 .avatar img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  will-change: auto;
+}
+
+.avatar--online::after {
+  content: "";
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 12px;
+  height: 12px;
+  background: var(--color-success);
+  border: 2px solid var(--bg-primary);
+  border-radius: 50%;
 }
 
 .hide-scrollbar::-webkit-scrollbar {
@@ -45,12 +102,21 @@ html {
   background-color: transparent; /* Corner color */
 }
 
+/* Chat Container - Enhanced */
 .chat-container {
-  /* clip-path: polygon(0 0, 100% 0, 100% 90%, 90% 100%, 0 100%); */
+  transform: translateZ(0);
+  contain: layout style paint;
+  background: var(--bg-chat);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: var(--transition-base);
 }
 
 .box-shadow-container {
-  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-base);
+  contain: layout style;
+  border-radius: var(--radius-md);
+  background: var(--bg-primary);
 }
 
 .accordion__button {
@@ -83,8 +149,14 @@ html {
   display: none !important;
 }
 
+/* Accordion Component */
 .accordion__panel {
-  animation: fadein 0.35s ease-in;
+  animation: fadeIn var(--duration-300) ease-out;
+  contain: layout style;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  margin-bottom: var(--space-2);
 }
 
 /* -------------------------------------------------- */
@@ -115,11 +187,261 @@ html {
   animation: blink 1s infinite;
 }
 
+/* Typing Indicator - Enhanced */
 .dot-animation {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  animation: bounce 1.4s infinite;
+  background: var(--color-gray-400);
+  animation: typing var(--duration-1000) ease-in-out infinite;
+  will-change: transform;
+  contain: layout style paint;
+}
+
+.typing-indicator {
+  display: inline-flex;
+  gap: var(--space-1);
+  align-items: center;
+  padding: var(--space-2) var(--space-3);
+  background: var(--bg-message-received);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Message Components */
+.message-bubble {
+  max-width: var(--message-max-width);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+  word-wrap: break-word;
+  position: relative;
+  transition: var(--transition-fast);
+}
+
+.message-bubble--sent {
+  background: var(--bg-message-sent);
+  color: var(--text-inverse);
+  margin-left: auto;
+}
+
+.message-bubble--received {
+  background: var(--bg-message-received);
+  color: var(--text-primary);
+  margin-right: auto;
+}
+
+.message-bubble:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Button Components */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-6);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--text-base);
+  font-weight: var(--font-medium);
+  text-decoration: none;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  min-height: 44px; /* Touch target */
+  position: relative;
+  overflow: hidden;
+}
+
+.btn--primary {
+  background: var(--color-primary-500);
+  color: var(--text-inverse);
+}
+
+.btn--primary:hover:not(:disabled) {
+  background: var(--color-primary-600);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn--secondary {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-primary);
+}
+
+.btn--secondary:hover:not(:disabled) {
+  background: var(--bg-tertiary);
+  border-color: var(--border-secondary);
+}
+
+.btn--ghost {
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+.btn--ghost:hover:not(:disabled) {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Input Components */
+.input {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  border: 2px solid var(--border-primary);
+  border-radius: var(--radius-md);
+  font-size: var(--text-base);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  transition: var(--transition-fast);
+  min-height: 44px; /* Touch target */
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+.input::placeholder {
+  color: var(--text-tertiary);
+}
+
+/* Card Components */
+.card {
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-base);
+  padding: var(--space-6);
+  transition: var(--transition-fast);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.card--interactive {
+  cursor: pointer;
+}
+
+.card--interactive:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Utility Classes */
+.text-center {
+  text-align: center;
+}
+.text-left {
+  text-align: left;
+}
+.text-right {
+  text-align: right;
+}
+
+.font-light {
+  font-weight: var(--font-light);
+}
+.font-normal {
+  font-weight: var(--font-normal);
+}
+.font-medium {
+  font-weight: var(--font-medium);
+}
+.font-semibold {
+  font-weight: var(--font-semibold);
+}
+.font-bold {
+  font-weight: var(--font-bold);
+}
+
+.text-xs {
+  font-size: var(--text-xs);
+}
+.text-sm {
+  font-size: var(--text-sm);
+}
+.text-base {
+  font-size: var(--text-base);
+}
+.text-lg {
+  font-size: var(--text-lg);
+}
+.text-xl {
+  font-size: var(--text-xl);
+}
+.text-2xl {
+  font-size: var(--text-2xl);
+}
+
+.text-primary {
+  color: var(--text-primary);
+}
+.text-secondary {
+  color: var(--text-secondary);
+}
+.text-tertiary {
+  color: var(--text-tertiary);
+}
+.text-muted {
+  color: var(--text-muted);
+}
+.text-inverse {
+  color: var(--text-inverse);
+}
+
+.bg-primary {
+  background-color: var(--bg-primary);
+}
+.bg-secondary {
+  background-color: var(--bg-secondary);
+}
+.bg-tertiary {
+  background-color: var(--bg-tertiary);
+}
+
+.rounded-sm {
+  border-radius: var(--radius-sm);
+}
+.rounded {
+  border-radius: var(--radius-base);
+}
+.rounded-md {
+  border-radius: var(--radius-md);
+}
+.rounded-lg {
+  border-radius: var(--radius-lg);
+}
+.rounded-xl {
+  border-radius: var(--radius-xl);
+}
+.rounded-full {
+  border-radius: var(--radius-full);
+}
+
+.shadow-sm {
+  box-shadow: var(--shadow-sm);
+}
+.shadow {
+  box-shadow: var(--shadow-base);
+}
+.shadow-md {
+  box-shadow: var(--shadow-md);
+}
+.shadow-lg {
+  box-shadow: var(--shadow-lg);
+}
+.shadow-xl {
+  box-shadow: var(--shadow-xl);
 }
 
 .dot-animation:nth-child(1) {
@@ -135,7 +457,9 @@ html {
 }
 
 @keyframes bounce {
-  0%, 80%, 100% {
+  0%,
+  80%,
+  100% {
     transform: scale(0);
   }
   40% {

@@ -1,19 +1,25 @@
-import MainPage from "@/pages/main";
-import { lazy } from "react";
+import { lazy, Suspense } from "react";
 import { Route, Routes } from "react-router-dom";
-import PageNotFound from "../../page-not-found/page-not-found";
 import {
   ProtectedLayout,
   PublicLayout,
   SidebarLayout,
 } from "../layout-wrappers";
 
-// const MainPage = lazy(
-//   () => import("@/pages/main"),
-// );
+// Lazy load all pages for better code splitting
+const MainPage = lazy(() => import("@/pages/main"));
 const LoginPage = lazy(() => import("../../../pages/authentication/login"));
 const SignUpPage = lazy(() => import("../../../pages/authentication/sign-up"));
-// const PageNotFound = lazy(() => import("../../../components/page-not-found"));
+const PageNotFound = lazy(
+  () => import("../../../components/page-not-found/page-not-found"),
+);
+
+// Loading component
+const PageLoader = () => (
+  <div className="flex h-screen w-full items-center justify-center">
+    <div className="h-12 w-12 animate-spin rounded-full border-4 border-purple-primary border-t-transparent"></div>
+  </div>
+);
 
 const RoutesWrapper = () => {
   return (
@@ -23,7 +29,9 @@ const RoutesWrapper = () => {
         path="/login"
         element={
           <PublicLayout>
-            <LoginPage />
+            <Suspense fallback={<PageLoader />}>
+              <LoginPage />
+            </Suspense>
           </PublicLayout>
         }
       />
@@ -31,7 +39,9 @@ const RoutesWrapper = () => {
         path="/sign-up"
         element={
           <PublicLayout>
-            <SignUpPage />
+            <Suspense fallback={<PageLoader />}>
+              <SignUpPage />
+            </Suspense>
           </PublicLayout>
         }
       />
@@ -42,7 +52,9 @@ const RoutesWrapper = () => {
         element={
           <ProtectedLayout>
             <SidebarLayout>
-              <MainPage />
+              <Suspense fallback={<PageLoader />}>
+                <MainPage />
+              </Suspense>
             </SidebarLayout>
           </ProtectedLayout>
         }
@@ -53,7 +65,9 @@ const RoutesWrapper = () => {
         path="/*"
         element={
           <PublicLayout>
-            <PageNotFound />
+            <Suspense fallback={<PageLoader />}>
+              <PageNotFound />
+            </Suspense>
           </PublicLayout>
         }
       />

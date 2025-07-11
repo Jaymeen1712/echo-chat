@@ -1,0 +1,319 @@
+/* Responsive Design Utilities */
+
+/* Container Queries Support */
+@container (max-width: 640px) {
+  .container-responsive {
+    padding: var(--space-4);
+  }
+}
+
+@container (min-width: 641px) {
+  .container-responsive {
+    padding: var(--space-6);
+  }
+}
+
+/* Mobile-First Responsive Utilities */
+
+/* Base Mobile Styles */
+.responsive-grid {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: 1fr;
+}
+
+.responsive-flex {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.responsive-text {
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+}
+
+.responsive-padding {
+  padding: var(--space-4);
+}
+
+.responsive-margin {
+  margin: var(--space-4);
+}
+
+/* Hide/Show utilities for different screen sizes */
+.mobile-only {
+  display: block;
+}
+
+.tablet-up {
+  display: none;
+}
+
+.desktop-up {
+  display: none;
+}
+
+.mobile-hidden {
+  display: none;
+}
+
+/* Tablet Styles (768px and up) */
+@media (min-width: 768px) {
+  .responsive-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-6);
+  }
+
+  .responsive-flex {
+    flex-direction: row;
+    gap: var(--space-6);
+  }
+
+  .responsive-text {
+    font-size: var(--text-base);
+  }
+
+  .responsive-padding {
+    padding: var(--space-6);
+  }
+
+  .responsive-margin {
+    margin: var(--space-6);
+  }
+
+  .mobile-only {
+    display: none;
+  }
+
+  .tablet-up {
+    display: block;
+  }
+
+  .mobile-hidden {
+    display: block;
+  }
+
+  /* Chat specific responsive styles */
+  .chat-container {
+    grid-template-columns: 300px 1fr;
+  }
+
+  .message-bubble {
+    max-width: var(--message-max-width);
+  }
+
+  .sidebar {
+    width: var(--sidebar-width);
+  }
+}
+
+/* Desktop Styles (1024px and up) */
+@media (min-width: 1024px) {
+  .responsive-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-8);
+  }
+
+  .responsive-flex {
+    gap: var(--space-8);
+  }
+
+  .responsive-text {
+    font-size: var(--text-lg);
+  }
+
+  .responsive-padding {
+    padding: var(--space-8);
+  }
+
+  .responsive-margin {
+    margin: var(--space-8);
+  }
+
+  .desktop-up {
+    display: block;
+  }
+
+  /* Enhanced chat layout for desktop */
+  .chat-container {
+    grid-template-columns: 320px 1fr 280px;
+  }
+
+  .message-bubble {
+    max-width: 60%;
+  }
+}
+
+/* Large Desktop Styles (1280px and up) */
+@media (min-width: 1280px) {
+  .responsive-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .chat-container {
+    grid-template-columns: 350px 1fr 300px;
+  }
+
+  .message-bubble {
+    max-width: 50%;
+  }
+}
+
+/* Touch Device Optimizations */
+@media (hover: none) and (pointer: coarse) {
+  /* Increase touch targets */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Larger buttons for touch */
+  .btn {
+    padding: var(--space-3) var(--space-6);
+    font-size: var(--text-base);
+  }
+
+  /* Remove hover effects on touch devices */
+  .hover-effect:hover {
+    transform: none;
+    box-shadow: none;
+  }
+
+  /* Optimize scrolling */
+  .scroll-container {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+}
+
+/* High DPI Display Optimizations */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .high-dpi-image {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+}
+
+/* Landscape Orientation on Mobile */
+@media (orientation: landscape) and (max-height: 600px) {
+  .landscape-mobile {
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .landscape-mobile .header {
+    height: var(--space-12);
+  }
+
+  .landscape-mobile .sidebar {
+    width: 240px;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  body {
+    font-size: 12pt;
+    line-height: 1.4;
+    color: black;
+    background: white;
+  }
+
+  .chat-message {
+    break-inside: avoid;
+    margin-bottom: var(--space-2);
+  }
+}
+
+/* Accessibility - Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .animate-on-scroll {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .parallax {
+    transform: none !important;
+  }
+}
+
+/* Focus Visible Support */
+@supports selector(:focus-visible) {
+  .focus-ring:focus {
+    outline: none;
+  }
+
+  .focus-ring:focus-visible {
+    outline: 2px solid var(--color-primary-500);
+    outline-offset: 2px;
+  }
+}
+
+/* Container Query Utilities */
+@supports (container-type: inline-size) {
+  .container-query {
+    container-type: inline-size;
+  }
+
+  @container (max-width: 400px) {
+    .cq-small .text {
+      font-size: var(--text-sm);
+    }
+  }
+
+  @container (min-width: 401px) {
+    .cq-large .text {
+      font-size: var(--text-lg);
+    }
+  }
+}
+
+/* Flexible Grid System */
+.grid-responsive {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+@media (min-width: 768px) {
+  .grid-responsive {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--space-6);
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid-responsive {
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: var(--space-8);
+  }
+}
+
+/* Responsive Typography */
+.responsive-heading {
+  font-size: clamp(var(--text-xl), 4vw, var(--text-4xl));
+  line-height: var(--leading-tight);
+}
+
+.responsive-body {
+  font-size: clamp(var(--text-sm), 2.5vw, var(--text-lg));
+  line-height: var(--leading-normal);
+}
+
+/* Responsive Spacing */
+.responsive-section {
+  padding-block: clamp(var(--space-8), 8vw, var(--space-24));
+}
+
+.responsive-gap {
+  gap: clamp(var(--space-4), 4vw, var(--space-12));
+}

@@ -28,6 +28,7 @@ const useMessageListController = () => {
   });
 
   const [showScrollButton, setShowScrollButton] = useState(false);
+  const [listHeight, setListHeight] = useState(400);
 
   const messageListContainerRef = useRef<HTMLDivElement | null>(null);
 
@@ -117,6 +118,21 @@ const useMessageListController = () => {
     }
   }, [activeChat?.isChatTemp, activeChat?.conversationId]);
 
+  // Calculate list height for virtualization
+  useEffect(() => {
+    const updateListHeight = () => {
+      if (messageListContainerRef.current) {
+        const rect = messageListContainerRef.current.getBoundingClientRect();
+        setListHeight(rect.height);
+      }
+    };
+
+    updateListHeight();
+    window.addEventListener("resize", updateListHeight);
+
+    return () => window.removeEventListener("resize", updateListHeight);
+  }, []);
+
   useEffect(() => {
     socketClient.on("update-message", (data) => {
       const { message } = data;
@@ -143,6 +159,7 @@ const useMessageListController = () => {
     showScrollButton,
     scrollToBottom,
     messageListContainerRef,
+    listHeight,
   };
 };
 

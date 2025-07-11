@@ -1,5 +1,6 @@
 import { SingleMessageWithTypeType } from "@/components/main-chat-panel/message-area/message-list/message-list-controller";
 import { AxiosError, AxiosResponse } from "axios";
+import { DateString, UUID } from "./common";
 
 export interface AxiosCustomErrorType extends AxiosError {
   response: AxiosError["response"] & {
@@ -22,28 +23,41 @@ interface AxiosCustomResponseDataType {
 
 export type SubSidebarKeysType = "chats" | "profile" | "settings";
 
+export interface SingleUserType {
+  _id: UUID;
+  name: string;
+  email: string;
+  image?: string;
+  isActive: boolean;
+  lastActive: DateString;
+  createdAt: DateString;
+  updatedAt: DateString;
+}
+
 export interface ActiveChatType {
   image?: string;
   name: string;
-  userId?: string;
-  conversationId?: string;
+  userId?: UUID;
+  conversationId?: UUID;
   isChatTemp: boolean;
   isActive: boolean;
   lastActive: Date;
 }
+
 export interface SingleConversationType {
-  _id: string;
+  _id: UUID;
   participants: ParticipantsEntity[];
   participantsKey: string;
   lastMessage?: SingleMessageType;
   isGroup: boolean;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: DateString;
+  updatedAt: DateString;
   unreadMessagesCount: number;
   __v: number;
 }
+
 export interface ParticipantsEntity {
-  _id: string;
+  _id: UUID;
   name: string;
   image?: string;
   isActive: boolean;

@@ -4,25 +4,35 @@ const Cors = require("cors");
 const express = require("express");
 const mongoose = require("mongoose");
 const router = require("../routes/routes");
-const { Server } = require("socket.io");
+const SocketManager = require("../utils/socketManager");
 const {
-  handleDisconnectUser,
-  handleConnectUser,
-} = require("../controllers/userController");
-const message_controller = require("../controllers/messageController");
-const { clients } = require("../utils/utils");
+  createIndexes,
+  monitorConnectionPool,
+  monitorMemoryUsage,
+} = require("../utils/dbOptimization");
+
+// Import middleware
+const { generalLimiter } = require("../middleware/rateLimitMiddleware");
 const {
-  getPopulatedConversation,
-} = require("../utils/getPopulatedConversation");
+  securityHeaders,
+  compressionMiddleware,
+  loggingMiddleware,
+  sanitizeRequest,
+  requestSizeLimit,
+  corsOptions,
+} = require("../middleware/securityMiddleware");
 
 const port = process.env.PORT || 4000;
 
 const app = express();
 const server = createServer(app);
 
+// Database connection with optimized settings
 mongoose.connect(process.env.DATABASE_URL, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
+  maxPoolSize: 10, // Maintain up to 10 socket connections
+  serverSelectionTimeoutMS: 5000, // Keep trying to send operations for 5 seconds
+  socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
+  bufferCommands: false, // Disable mongoose buffering
 });
 
 const db = mongoose.connection;
@@ -31,144 +41,87 @@ db.on("error", (err) => {
   console.error("MongoDB connection error:", err);
 });
 
-db.once("open", () => {
+db.once("open", async () => {
   console.log("Database Connection Established!");
+
+  // Create database indexes for better performance
+  await createIndexes();
+
+  // Start monitoring in development
+  if (process.env.NODE_ENV === "development") {
+    monitorConnectionPool();
+    monitorMemoryUsage();
+  }
 });
 
+// Apply security and performance middleware
+app.use(securityHeaders);
+app.use(compressionMiddleware);
+app.use(loggingMiddleware);
+app.use(generalLimiter);
+app.use(requestSizeLimit);
+app.use(sanitizeRequest);
+
+// Body parsing middleware with size limits
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ limit: "10mb", extended: true }));
-app.use(Cors());
+
+// CORS with enhanced configuration
+app.use(Cors(corsOptions));
+
+// Routes
+app.use("/chat-service", router);
+
+// Health check endpoint
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    status: "OK",
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+  });
+});
+
+// 404 handler
+app.use("*", (req, res) => {
+  res.status(404).json({
+    error: "Route not found",
+    path: req.originalUrl,
+  });
+});
+
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error("Global error handler:", err);
+
+  // Don't leak error details in production
+  const isDevelopment = process.env.NODE_ENV === "development";
+
+  res.status(err.status || 500).json({
+    error: isDevelopment ? err.message : "Internal server error",
+    ...(isDevelopment && { stack: err.stack }),
+  });
+});
+
+// Initialize Socket.io with optimized configuration
+const socketManager = new SocketManager(server);
 
 server.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
 
-const io = new Server(server, {
-  cors: {
-    origin: process.env.SOCKET_CORS_URL,
-    methods: ["GET", "POST"],
-  },
-});
-
-io.on("connection", (socket) => {
-  // console.log(`User Connected: ${socket.id}`);
-
-  socket.on("register", (userId) => {
-    if (userId) {
-      clients[userId] = socket.id;
-      handleConnectUser(userId);
-    }
-
-    // Notify all clients about the updated user list
-    io.emit("online-users", Object.keys(clients));
-    console.log("🚀 ~ socket.on register ~ clients:", clients);
-  });
-
-  // Handle disconnection
-  socket.on("disconnect", () => {
-    console.log(`User disconnected: ${socket.id}`);
-    const disconnectedUserId = Object.keys(clients).find(
-      (key) => clients[key] === socket.id
-    );
-
-    if (disconnectedUserId) {
-      handleDisconnectUser(disconnectedUserId);
-      delete clients[disconnectedUserId];
-    }
-    io.emit("online-users", Object.keys(clients));
-    console.log("🚀 ~ socket.on disconnect ~ clients:", clients);
-  });
-
-  // Conversations
-  socket.on("conversation-updated", async ({ conversationId, receiverId }) => {
-    const populatedConversation = await getPopulatedConversation(
-      conversationId
-    );
-
-    io.emit("update-conversation", {
-      conversation: populatedConversation,
-      receiverId,
-    });
-  });
-
-  // Messages
-  socket.on("message-updated", async ({ message }) => {
-    io.emit("update-message", {
-      message,
-    });
-  });
-
-  // Relay offer to the target user
-  socket.on("send-offer", ({ senderUserDetails, targetUserId, offer }) => {
-    const targetUserSocketId = clients[targetUserId];
-    if (targetUserSocketId) {
-      io.to(targetUserSocketId).emit("receive-offer", {
-        senderUserDetails,
-        targetUserId,
-        offer,
-      });
-      console.log(`Offer sent from ${socket.id} to ${targetUserId}`);
-    } else {
-      console.error(`Target user ${targetUserId} not found`);
-    }
-  });
-
-  // Relay answer to the target user
-  socket.on("send-answer", ({ senderUserId, answer }) => {
-    const targetUserSocketId = clients[senderUserId];
-    if (targetUserSocketId) {
-      io.to(targetUserSocketId).emit("receive-answer", {
-        answer,
-      });
-      console.log(`Answer sent from ${socket.id} to ${senderUserId}`);
-    } else {
-      console.error(`Target user ${senderUserId} not found`);
-    }
-  });
-
-  socket.on("send-ice-candidate", ({ targetUserId, candidate }) => {
-    console.log(`ICE Candidate from ${socket.id} to ${targetUserId}`);
-    const targetUserSocketId = clients[targetUserId];
-
-    if (targetUserSocketId) {
-      io.to(targetUserSocketId).emit("receive-ice-candidate", {
-        targetUserId,
-        candidate,
-      });
-      console.log(`Relayed ICE candidate to ${targetUserId}`);
-    } else {
-      console.error(`Target user ${targetUserId} not found`);
-    }
-  });
-
-  // Live messages
-  socket.on("update-seen-messages", async ({ conversationId, senderId }) => {
-    if (!conversationId || !senderId) return;
-    const messages = await message_controller.handleUpdateIsSeen(
-      conversationId,
-      senderId
-    );
-
-    io.emit("updated-seen-messages", { messages, conversationId });
-  });
-  socket.on("send-true-typing", async ({ conversationId, targetUserId }) => {
-    if (!conversationId || !targetUserId) return;
-
-    const targetUserSocketId = clients[targetUserId];
-
-    io.to(targetUserSocketId).emit("receive-true-typing", {
-      conversationId,
-    });
-  });
-  socket.on("send-false-typing", async ({ conversationId, targetUserId }) => {
-    if (!conversationId || !targetUserId) return;
-
-    const targetUserSocketId = clients[targetUserId];
-
-    io.to(targetUserSocketId).emit("receive-false-typing", {
-      conversationId,
-    });
+// Graceful shutdown
+process.on("SIGTERM", () => {
+  console.log("SIGTERM received, shutting down gracefully");
+  socketManager.cleanup();
+  server.close(() => {
+    console.log("Process terminated");
   });
 });
 
-app.use("/chat-service", router);
+process.on("SIGINT", () => {
+  console.log("SIGINT received, shutting down gracefully");
+  socketManager.cleanup();
+  server.close(() => {
+    console.log("Process terminated");
+  });
+});

@@ -3,6 +3,10 @@ const Message = require("../models/message");
 const { sendErrors } = require("../utils/getError");
 const { handleGetResponse } = require("../utils/utils");
 const Conversation = require("../models/conversation");
+const {
+  getMessagesAggregation,
+  bulkUpdateMessageStatus,
+} = require("../utils/dbOptimization");
 
 module.exports.message_post = async (req, res) => {
   try {
@@ -68,18 +72,20 @@ module.exports.message_get = async (req, res) => {
   try {
     const { conversationId } = req.params;
 
-    const conversation = new ObjectId(conversationId);
+    // Get pagination parameters
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 50;
+    const skip = (page - 1) * limit;
 
-    const messages = await Message.find({
-      conversation,
-    })
-      .populate("sender", ["name", "image"])
-      .sort({ updatedAt: -1 });
+    // Use optimized aggregation pipeline
+    const messages = await Message.aggregate(
+      getMessagesAggregation(conversationId, limit, skip)
+    );
 
     if (!messages || messages.length === 0) {
       return res.status(202).json(
         handleGetResponse({
-          message: `No messages found for this user.`,
+          message: `No messages found for this conversation.`,
           data: {
             messages: [],
           },
