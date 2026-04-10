@@ -9,7 +9,7 @@ const Conversation = require("../models/conversation");
 
 const createUser = async (req, res) => {
   try {
-    const { email, isActive, name, password, image } = req.body;
+    const { email, name, password, image } = req.body;
 
     // Check if all required fields are provided
     if (!email || !password || !name) {
@@ -20,7 +20,7 @@ const createUser = async (req, res) => {
 
     const newUser = new User({
       email,
-      isActive,
+      isActive: false,
       name,
       password,
       image,
@@ -31,7 +31,7 @@ const createUser = async (req, res) => {
     res.status(201).json(
       handleGetResponse({
         message: "User created successfully",
-      })
+      }),
     );
   } catch (error) {
     sendErrors({
@@ -53,7 +53,7 @@ const loginUser = async (req, res) => {
         handleGetResponse({
           message: "Email and password are required.",
           isError: true,
-        })
+        }),
       );
     }
 
@@ -66,7 +66,7 @@ const loginUser = async (req, res) => {
         handleGetResponse({
           message: "Invalid email or password.",
           isError: true,
-        })
+        }),
       );
     }
 
@@ -78,7 +78,7 @@ const loginUser = async (req, res) => {
         handleGetResponse({
           message: "Invalid password.",
           isError: true,
-        })
+        }),
       );
     }
 
@@ -86,15 +86,17 @@ const loginUser = async (req, res) => {
     const token = jwt.sign(
       { userId: user._id, email: user.email },
       process.env.JWT_SECRET,
-      { expiresIn: "6h" }
+      { expiresIn: "6h" },
     );
+
+    handleConnectUser(user._id);
 
     // Send response with the token
     res.status(200).json(
       handleGetResponse({
         message: "Login successful.",
         data: { token },
-      })
+      }),
     );
   } catch (error) {
     console.error("Error logging in user:", error);
@@ -105,7 +107,7 @@ const loginUser = async (req, res) => {
         handleGetResponse({
           message: "Validation error. Check input data.",
           isError: true,
-        })
+        }),
       );
     }
 
@@ -114,7 +116,7 @@ const loginUser = async (req, res) => {
       handleGetResponse({
         message: "Could not log in user due to a server error.",
         isError: true,
-      })
+      }),
     );
   }
 };
@@ -130,7 +132,7 @@ const getUser = async (req, res) => {
         handleGetResponse({
           message: "User not found.",
           isError: true,
-        })
+        }),
       );
     }
 
@@ -138,7 +140,7 @@ const getUser = async (req, res) => {
       handleGetResponse({
         message: "User data retrieved successfully.",
         data: { user: { ...populatedUser.toObject(), ...user } },
-      })
+      }),
     );
   } catch (error) {
     console.error(error);
@@ -146,7 +148,7 @@ const getUser = async (req, res) => {
       handleGetResponse({
         message: "Could not log in user due to a server error.",
         isError: true,
-      })
+      }),
     );
   }
 };
@@ -218,7 +220,7 @@ const searchUsers_get = async (req, res) => {
         handleGetResponse({
           message: "No users found matching the query.",
           data: { users: [] },
-        })
+        }),
       );
     }
 
@@ -226,7 +228,7 @@ const searchUsers_get = async (req, res) => {
       handleGetResponse({
         message: "User data fetched successfully.",
         data: { users },
-      })
+      }),
     );
   } catch (error) {
     console.error(error);
@@ -234,7 +236,7 @@ const searchUsers_get = async (req, res) => {
       handleGetResponse({
         message: "Could not find users due to a server error.",
         isError: true,
-      })
+      }),
     );
   }
 };
@@ -260,7 +262,7 @@ const updateUser_patch = async (req, res) => {
         handleGetResponse({
           message: "No user found.",
           data: { users: [] },
-        })
+        }),
       );
     }
 
@@ -268,7 +270,7 @@ const updateUser_patch = async (req, res) => {
       handleGetResponse({
         message: "User data updated successfully.",
         data: { user: { ...populatedUser.toObject(), ...req.user } },
-      })
+      }),
     );
   } catch (error) {
     sendErrors({
@@ -291,7 +293,7 @@ const handleDisconnectUser = async (userId) => {
       {
         lastActive: new Date(),
         isActive: false,
-      }
+      },
     );
   } catch (error) {
     console.error(error);
@@ -308,7 +310,7 @@ const handleConnectUser = async (userId) => {
       { _id: userId },
       {
         isActive: true,
-      }
+      },
     );
 
     const userObjectId = new ObjectId(userId);
@@ -329,7 +331,7 @@ const handleConnectUser = async (userId) => {
         isDelivered: false,
         sender: { $ne: userObjectId },
       },
-      { $set: { isDelivered: true } }
+      { $set: { isDelivered: true } },
     );
   } catch (error) {
     console.error(error);
