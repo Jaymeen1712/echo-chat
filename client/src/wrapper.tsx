@@ -1,3 +1,4 @@
+import { Analytics } from "@vercel/analytics/react";
 import React, { useEffect } from "react";
 import { ToastContainer } from "react-toastify";
 import { io } from "socket.io-client";
@@ -138,9 +139,9 @@ const Wrapper: React.FC<WrapperProps> = ({ children }) => {
   peerConnection.onsignalingstatechange = () => {
     console.log("Signaling State:", peerConnection.signalingState);
   };
-
   return (
     <>
+      <Analytics />
       <ToastContainer
         position="bottom-right"
         autoClose={2500}
